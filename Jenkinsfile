@@ -8,6 +8,12 @@ pipeline {
                 bat 'docker --version'
             }
         }
+        
+        stage('remove the old image'){
+            steps{
+                bat 'docker rmi -f swi:v1 2>nul || exit /b 0'
+            }
+        }
 
         stage('docker-image-built') {
             steps {

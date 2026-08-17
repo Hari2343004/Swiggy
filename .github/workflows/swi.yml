@@ -20,6 +20,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: delete old image
+        run: docker rmi -f swi:v1 || true
+        
       - name: Docker building
         run: docker build -t swi:v1 .
 
