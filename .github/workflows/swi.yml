@@ -1,0 +1,36 @@
+name: swiggy
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+jobs:
+  build_test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Docker building
+        run: docker build -t swi:v1 .
+
+      - name: Docker container building
+        run: docker run -d --name swi-con -p 8081:80 swi:v1
+
+      - name: Docker is there
+        run: docker ps && docker images
+
+      - name: Docker destroy
+        run: docker stop swi-con && docker rm swi-con && docker rmi swi:v1
+
+      - name: Docker is there
+        run: docker ps && docker images
