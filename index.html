@@ -1,0 +1,3880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Order Food & Groceries Online | Swiggy Clone</title>
+  <meta name="description" content="Order food online from the best restaurants near you. Fast delivery, fresh groceries with Instamart, table booking with Dineout, and Genie pick up & drop.">
+  <meta name="theme-color" content="#fc8019">
+  <!-- Swiggy Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%23fc8019' d='M50 0C22.4 0 0 22.4 0 50s22.4 50 50 50 50-22.4 50-50S77.6 0 50 0zm0 15c19.3 0 35 15.7 35 35 0 24-27 42-35 48-8-6-35-24-35-48 0-19.3 15.7-35 35-35z'/%3E%3Ccircle fill='%23ffffff' cx='50' cy='45' r='14'/%3E%3C/svg%3E">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Canvas Confetti CDN for coupon animations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       SWIGGY CORE THEME & CSS VARIABLES
+       ========================================================================== */
+    :root {
+      --swiggy-orange: #fc8019;
+      --swiggy-orange-hover: #e36e0e;
+      --swiggy-orange-light: #fff3e8;
+      --swiggy-black: #02060c;
+      --swiggy-dark: #282c3f;
+      --swiggy-gray-dark: #3e4152;
+      --swiggy-gray: #686b78;
+      --swiggy-gray-light: #93959f;
+      --swiggy-border: #e2e2e7;
+      --swiggy-bg: #ffffff;
+      --swiggy-surface: #f0f0f5;
+      --swiggy-surface-light: #fbfbfb;
+      --swiggy-green: #119643;
+      --swiggy-green-light: #e7f7ed;
+      --swiggy-red: #e43b4f;
+      --swiggy-blue: #2b70f0;
+      --swiggy-purple: #8e35cf;
+      --swiggy-gold: #ffbe00;
+      --swiggy-shadow-sm: 0 1px 4px rgba(40, 44, 63, 0.08);
+      --swiggy-shadow: 0 4px 16px rgba(40, 44, 63, 0.12);
+      --swiggy-shadow-lg: 0 12px 32px rgba(40, 44, 63, 0.18);
+      --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-body: 'Inter', sans-serif;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --header-height: 80px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-main);
+      color: var(--swiggy-dark);
+      background-color: var(--swiggy-bg);
+      line-height: 1.4;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #c5c7d0;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #a3a6b5;
+    }
+
+    /* Common Utility Classes */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .justify-center { justify-content: center; }
+    .flex-col { flex-direction: column; }
+    .gap-2 { gap: 8px; }
+    .gap-3 { gap: 12px; }
+    .gap-4 { gap: 16px; }
+    .gap-6 { gap: 24px; }
+    .cursor-pointer { cursor: pointer; }
+    .select-none { user-select: none; }
+    .text-sm { font-size: 13px; }
+    .text-xs { font-size: 11px; }
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; }
+
+    button {
+      font-family: inherit;
+      border: none;
+      background: none;
+      outline: none;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    input {
+      font-family: inherit;
+      outline: none;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== */
+    .header {
+      position: sticky;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: var(--header-height);
+      background: #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      transition: transform 0.3s ease;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .logo-container:hover {
+      transform: scale(1.03);
+    }
+    .swiggy-logo-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fc8019 0%, #ff5200 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(252, 128, 25, 0.35);
+    }
+
+    .location-selector {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+    .location-selector:hover {
+      background-color: var(--swiggy-surface);
+    }
+    .location-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--swiggy-dark);
+      border-bottom: 2px solid var(--swiggy-dark);
+      padding-bottom: 2px;
+    }
+    .location-subtitle {
+      font-size: 13px;
+      color: var(--swiggy-gray);
+      white-space: nowrap;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .location-chevron {
+      color: var(--swiggy-orange);
+      font-size: 14px;
+      transition: transform 0.2s;
+    }
+
+    /* Top Service Selector Pills (Food, Instamart, Dineout, Genie) */
+    .service-nav-bar {
+      display: flex;
+      background: var(--swiggy-surface);
+      padding: 4px;
+      border-radius: var(--radius-full);
+      gap: 4px;
+      border: 1px solid var(--swiggy-border);
+    }
+    .service-nav-btn {
+      padding: 7px 16px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--swiggy-gray-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .service-nav-btn.active {
+      background: #ffffff;
+      color: var(--swiggy-orange);
+      box-shadow: var(--swiggy-shadow-sm);
+    }
+    .service-nav-btn:hover:not(.active) {
+      color: var(--swiggy-black);
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--swiggy-gray-dark);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+    .nav-item:hover {
+      color: var(--swiggy-orange);
+    }
+    .nav-badge {
+      background: var(--swiggy-orange);
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 10px;
+      text-transform: uppercase;
+    }
+    .cart-badge-count {
+      background: var(--swiggy-green);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      min-width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 9px;
+      padding: 0 4px;
+    }
+
+    /* ==========================================================================
+       HERO & CATEGORY CAROUSEL ("What's on your mind?")
+       ========================================================================== */
+    .hero-banner-section {
+      background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+      padding: 24px 0 12px;
+    }
+
+    .deals-banner-carousel {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      padding: 6px 0 16px;
+      scroll-behavior: smooth;
+    }
+    .deals-banner-carousel::-webkit-scrollbar { display: none; }
+
+    .deal-card {
+      flex: 0 0 380px;
+      height: 190px;
+      border-radius: var(--radius-lg);
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      scroll-snap-align: start;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
+    }
+    .deal-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+    .deal-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 24px;
+      color: #ffffff;
+    }
+    .deal-card-tag {
+      background: var(--swiggy-orange);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 4px;
+      width: fit-content;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .deal-card-title {
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 4px;
+    }
+    .deal-card-sub {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 12px;
+    }
+    .deal-card-btn {
+      background: #ffffff;
+      color: var(--swiggy-black);
+      font-weight: 700;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      width: fit-content;
+    }
+
+    /* Section Headers with Navigation Arrows */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 28px 0 16px;
+    }
+    .section-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--swiggy-black);
+      letter-spacing: -0.3px;
+    }
+    .carousel-arrows {
+      display: flex;
+      gap: 10px;
+    }
+    .arrow-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-full);
+      background: #e2e2e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--swiggy-dark);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .arrow-btn:hover:not(:disabled) {
+      background: #d0d0d8;
+      transform: scale(1.08);
+    }
+    .arrow-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Category Circular Carousel */
+    .category-carousel {
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      padding: 10px 4px 20px;
+    }
+    .category-carousel::-webkit-scrollbar { display: none; }
+
+    .category-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      flex: 0 0 110px;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .category-item:hover {
+      transform: scale(1.08);
+    }
+    .category-img-box {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: #f4f4f6;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .category-img-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    .category-item:hover .category-img-box img {
+      transform: scale(1.1);
+    }
+    .category-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--swiggy-gray-dark);
+      text-align: center;
+    }
+
+    /* Top Chains Horizontal List */
+    .top-chains-carousel {
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      padding: 10px 4px 28px;
+    }
+    .top-chains-carousel::-webkit-scrollbar { display: none; }
+    .top-chain-card-wrap {
+      flex: 0 0 270px;
+    }
+
+    /* Divider */
+    .swiggy-divider {
+      height: 1px;
+      background-color: var(--swiggy-border);
+      margin: 24px 0 32px;
+    }
+
+    /* ==========================================================================
+       FILTER & SORT TOOLBAR
+       ========================================================================== */
+    .filter-toolbar-sticky {
+      position: sticky;
+      top: var(--header-height);
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      z-index: 90;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--swiggy-border);
+      margin-bottom: 24px;
+      transition: all 0.2s;
+    }
+    .filter-pills-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 2px 0;
+    }
+    .filter-pills-row::-webkit-scrollbar { display: none; }
+
+    .filter-pill {
+      padding: 8px 16px;
+      border: 1px solid var(--swiggy-border);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--swiggy-gray-dark);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      cursor: pointer;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .filter-pill:hover {
+      border-color: var(--swiggy-gray-light);
+      background: #f8f8f9;
+      transform: translateY(-1px);
+    }
+    .filter-pill.active {
+      border-color: var(--swiggy-black);
+      background: var(--swiggy-black);
+      color: #ffffff;
+    }
+    .filter-pill.active svg {
+      stroke: #ffffff;
+      fill: #ffffff;
+    }
+
+    /* Pure Veg Toggle Switch */
+    .pure-veg-switch {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border: 1px solid var(--swiggy-border);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #ffffff;
+      transition: all 0.2s;
+    }
+    .pure-veg-switch.active {
+      border-color: var(--swiggy-green);
+      background: var(--swiggy-green-light);
+      color: var(--swiggy-green);
+    }
+    .veg-icon-dot {
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid var(--swiggy-green);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .veg-icon-dot::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--swiggy-green);
+    }
+    .non-veg-icon-dot {
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid var(--swiggy-red);
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .non-veg-icon-dot::after {
+      content: '';
+      width: 0;
+      height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-bottom: 7px solid var(--swiggy-red);
+    }
+
+    /* ==========================================================================
+       RESTAURANT GRID & CARDS
+       ========================================================================== */
+    .restaurant-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 32px 24px;
+      margin-bottom: 60px;
+    }
+
+    .restaurant-card {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      border-radius: var(--radius-lg);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s;
+      position: relative;
+    }
+    .restaurant-card:hover {
+      transform: scale(0.96);
+    }
+
+    .card-media-wrapper {
+      position: relative;
+      width: 100%;
+      height: 175px;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      background: #e9e9ee;
+    }
+    .card-media-wrapper img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.35s ease;
+    }
+    .restaurant-card:hover .card-media-wrapper img {
+      transform: scale(1.06);
+    }
+
+    .card-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.1) 40%, rgba(0, 0, 0, 0.85) 100%);
+    }
+
+    .card-offer-tag {
+      position: absolute;
+      bottom: 10px;
+      left: 12px;
+      color: #ffffff;
+      font-size: 17px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.2px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+      line-height: 1.1;
+    }
+
+    .card-fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.35);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      transition: all 0.2s;
+    }
+    .card-fav-btn:hover {
+      transform: scale(1.15);
+      background: rgba(0, 0, 0, 0.6);
+    }
+    .card-fav-btn.is-fav {
+      color: #ff385c;
+      fill: #ff385c;
+    }
+
+    .card-content {
+      padding: 12px 4px 4px;
+    }
+    .card-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--swiggy-black);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+    .card-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--swiggy-black);
+      margin-bottom: 4px;
+    }
+    .rating-badge {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--swiggy-green);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    .card-cuisines {
+      font-size: 13px;
+      color: var(--swiggy-gray);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .card-locality {
+      font-size: 13px;
+      color: var(--swiggy-gray);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ==========================================================================
+       INSTAMART SECTION (GROCERIES IN 10 MINS)
+       ========================================================================== */
+    .instamart-view {
+      display: none;
+      padding: 20px 0 60px;
+    }
+    .instamart-view.active {
+      display: block;
+    }
+
+    .instamart-hero {
+      background: linear-gradient(135deg, #7c22e8 0%, #5816aa 100%);
+      border-radius: var(--radius-lg);
+      padding: 32px 40px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      box-shadow: 0 10px 25px rgba(124, 34, 232, 0.25);
+    }
+    .instamart-badge {
+      background: #ffc700;
+      color: #000;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .instamart-hero h2 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .instamart-hero p {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+
+    .grocery-categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .grocery-cat-card {
+      background: #f7f7f9;
+      border-radius: var(--radius-md);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .grocery-cat-card:hover {
+      background: #ffffff;
+      border-color: var(--swiggy-purple);
+      box-shadow: var(--swiggy-shadow);
+      transform: translateY(-2px);
+    }
+    .grocery-cat-card img {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .grocery-cat-name {
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      color: var(--swiggy-dark);
+    }
+
+    .grocery-items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .grocery-item-card {
+      background: #ffffff;
+      border: 1px solid var(--swiggy-border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: box-shadow 0.2s;
+    }
+    .grocery-item-card:hover {
+      box-shadow: var(--swiggy-shadow);
+    }
+    .grocery-item-img {
+      width: 100%;
+      height: 130px;
+      object-fit: contain;
+      margin-bottom: 8px;
+    }
+    .grocery-time-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .grocery-item-weight {
+      font-size: 11px;
+      color: var(--swiggy-gray);
+      margin-bottom: 2px;
+    }
+    .grocery-item-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--swiggy-black);
+      height: 38px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .grocery-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+    }
+    .grocery-price {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--swiggy-black);
+    }
+    .grocery-original-price {
+      font-size: 12px;
+      color: var(--swiggy-gray-light);
+      text-decoration: line-through;
+      margin-left: 4px;
+    }
+
+    /* ==========================================================================
+       DINEOUT SECTION (TABLE BOOKING & 50% OFF)
+       ========================================================================== */
+    .dineout-view {
+      display: none;
+      padding: 20px 0 60px;
+    }
+    .dineout-view.active {
+      display: block;
+    }
+
+    .dineout-hero {
+      background: linear-gradient(135deg, #ff385c 0%, #bd081c 100%);
+      border-radius: var(--radius-lg);
+      padding: 32px 40px;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .dineout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .dineout-card {
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--swiggy-border);
+      box-shadow: var(--swiggy-shadow-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .dineout-card:hover {
+      box-shadow: var(--swiggy-shadow-lg);
+      transform: translateY(-3px);
+    }
+    .dineout-img-wrap {
+      position: relative;
+      height: 180px;
+    }
+    .dineout-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .dineout-discount-tag {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--swiggy-green);
+      color: white;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .dineout-info {
+      padding: 16px;
+    }
+    .dineout-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .dineout-sub {
+      font-size: 13px;
+      color: var(--swiggy-gray);
+      margin-bottom: 12px;
+    }
+    .dineout-book-btn {
+      width: 100%;
+      background: var(--swiggy-red);
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    /* ==========================================================================
+       GENIE SECTION (PICK UP & DROP)
+       ========================================================================== */
+    .genie-view {
+      display: none;
+      padding: 20px 0 60px;
+    }
+    .genie-view.active {
+      display: block;
+    }
+
+    .genie-card-box {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid var(--swiggy-border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      box-shadow: var(--swiggy-shadow);
+    }
+    .genie-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--swiggy-black);
+      margin-bottom: 8px;
+    }
+    .genie-desc {
+      font-size: 14px;
+      color: var(--swiggy-gray);
+      margin-bottom: 24px;
+    }
+    .genie-input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .genie-input-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1.5px solid var(--swiggy-border);
+      border-radius: var(--radius-md);
+      background: #fafafa;
+    }
+    .genie-input-box input {
+      width: 100%;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .genie-submit-btn {
+      width: 100%;
+      background: var(--swiggy-orange);
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 12px rgba(252, 128, 25, 0.3);
+    }
+    .genie-submit-btn:hover {
+      background: var(--swiggy-orange-hover);
+    }
+
+    /* ==========================================================================
+       SWIGGY ONE PROMOTIONAL BANNER
+       ========================================================================== */
+    .swiggy-one-banner {
+      background: linear-gradient(135deg, #1b1e2e 0%, #2f344d 100%);
+      border-radius: var(--radius-lg);
+      padding: 28px 36px;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 40px 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .swiggy-one-banner::before {
+      content: '';
+      position: absolute;
+      right: -40px;
+      top: -40px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 190, 0, 0.25) 0%, transparent 70%);
+    }
+    .swiggy-one-left {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1;
+    }
+    .swiggy-one-tag {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--swiggy-gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 1px;
+    }
+    .swiggy-one-heading {
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .swiggy-one-sub {
+      font-size: 14px;
+      color: #b5b9cc;
+    }
+    .swiggy-one-btn {
+      background: linear-gradient(135deg, #ffc700 0%, #ffa500 100%);
+      color: #000;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+      z-index: 1;
+      box-shadow: 0 4px 14px rgba(255, 190, 0, 0.4);
+      transition: transform 0.2s;
+    }
+    .swiggy-one-btn:hover {
+      transform: scale(1.05);
+    }
+
+    /* ==========================================================================
+       APP DOWNLOAD BANNER
+       ========================================================================== */
+    .app-download-section {
+      background: #f0f0f5;
+      padding: 36px 0;
+      margin-top: 40px;
+      border-radius: var(--radius-lg);
+    }
+    .app-download-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .app-download-text h3 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--swiggy-dark);
+      margin-bottom: 6px;
+    }
+    .app-download-text p {
+      font-size: 14px;
+      color: var(--swiggy-gray);
+    }
+    .app-store-badges {
+      display: flex;
+      gap: 16px;
+    }
+    .app-badge-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #000000;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .app-badge-btn:hover {
+      transform: translateY(-2px);
+    }
+    .app-badge-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+    .app-badge-sub {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .app-badge-main {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    /* ==========================================================================
+       MODALS & SLIDE-IN DRAWERS
+       ========================================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(40, 44, 63, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .modal-backdrop.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Common Slide Drawer (Right Side) */
+    .drawer-right {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      z-index: 1010;
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.2);
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer-right.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid var(--swiggy-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .drawer-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--swiggy-black);
+    }
+    .drawer-close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--swiggy-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .drawer-close-btn:hover {
+      background: var(--swiggy-border);
+    }
+    .drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+    }
+    .drawer-footer {
+      padding: 18px 24px;
+      border-top: 1px solid var(--swiggy-border);
+      background: #ffffff;
+    }
+
+    /* Left Drawer (Location Selector) */
+    .drawer-left {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 460px;
+      background: #ffffff;
+      z-index: 1010;
+      box-shadow: 8px 0 32px rgba(0, 0, 0, 0.2);
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer-left.open {
+      transform: translateX(0);
+    }
+
+    /* Center Modal (Restaurant Menu & Details) */
+    .modal-center {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -46%) scale(0.96);
+      width: 92%;
+      max-width: 860px;
+      max-height: 90vh;
+      background: #ffffff;
+      border-radius: var(--radius-lg);
+      z-index: 1010;
+      box-shadow: var(--swiggy-shadow-lg);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal-center.open {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    /* ==========================================================================
+       RESTAURANT MENU MODAL DETAILS
+       ========================================================================== */
+    .resto-header-banner {
+      background: linear-gradient(180deg, #fafafa 0%, #f4f4f7 100%);
+      padding: 24px 28px 18px;
+      border-bottom: 1px solid var(--swiggy-border);
+      position: relative;
+    }
+    .resto-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .resto-header-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--swiggy-black);
+    }
+    .resto-header-meta {
+      font-size: 13px;
+      color: var(--swiggy-gray);
+      margin-bottom: 12px;
+    }
+    .resto-rating-card {
+      border: 1px solid var(--swiggy-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      text-align: center;
+      background: #ffffff;
+    }
+    .resto-rating-score {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--swiggy-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border-bottom: 1px solid var(--swiggy-border);
+      padding-bottom: 4px;
+      margin-bottom: 4px;
+    }
+    .resto-rating-count {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--swiggy-gray-light);
+    }
+
+    .resto-offers-scroller {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding: 8px 0;
+      margin-top: 8px;
+    }
+    .resto-offers-scroller::-webkit-scrollbar { display: none; }
+
+    .resto-offer-box {
+      flex: 0 0 auto;
+      border: 1px solid #d4d5d9;
+      border-radius: 8px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #ffffff;
+    }
+    .resto-offer-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--swiggy-orange-light);
+      color: var(--swiggy-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .resto-offer-text {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--swiggy-gray-dark);
+    }
+    .resto-offer-sub {
+      font-size: 10px;
+      color: var(--swiggy-gray-light);
+    }
+
+    /* Menu Items List inside modal */
+    .menu-body-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 28px;
+    }
+    .menu-filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--swiggy-border);
+      margin-bottom: 20px;
+    }
+    .menu-search-input {
+      padding: 8px 14px;
+      border: 1px solid var(--swiggy-border);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      width: 240px;
+    }
+
+    .menu-category-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--swiggy-black);
+      margin: 20px 0 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .menu-item-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 0;
+      border-bottom: 0.5px solid var(--swiggy-border);
+    }
+    .menu-item-info {
+      flex: 1;
+    }
+    .menu-item-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--swiggy-black);
+      margin: 6px 0 4px;
+    }
+    .menu-item-price {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--swiggy-gray-dark);
+      margin-bottom: 8px;
+    }
+    .menu-item-desc {
+      font-size: 13px;
+      color: var(--swiggy-gray);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .menu-item-media {
+      position: relative;
+      width: 120px;
+      height: 110px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .menu-item-img {
+      width: 120px;
+      height: 96px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+    }
+
+    /* Add to Cart Button with Quantity State */
+    .add-btn-wrapper {
+      position: absolute;
+      bottom: -6px;
+      background: #ffffff;
+      border: 1px solid #d4d5d9;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+      min-width: 90px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .add-btn-primary {
+      width: 100%;
+      height: 100%;
+      color: var(--swiggy-green);
+      font-size: 14px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.5px;
+    }
+    .add-btn-primary:hover {
+      background: #f7faf8;
+    }
+    .qty-counter-control {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+    }
+    .qty-btn {
+      width: 30px;
+      height: 100%;
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--swiggy-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .qty-btn:hover {
+      background: #eef7f1;
+    }
+    .qty-val {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--swiggy-green);
+    }
+
+    /* ==========================================================================
+       CART DRAWER & ORDER SUMMARY
+       ========================================================================== */
+    .cart-empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .cart-empty-img {
+      width: 200px;
+      margin-bottom: 20px;
+      opacity: 0.85;
+    }
+    .cart-empty-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--swiggy-dark);
+      margin-bottom: 6px;
+    }
+    .cart-empty-sub {
+      font-size: 13px;
+      color: var(--swiggy-gray);
+      margin-bottom: 24px;
+    }
+    .cart-see-resto-btn {
+      background: var(--swiggy-orange);
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: var(--radius-md);
+    }
+
+    .cart-resto-summary {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--swiggy-border);
+      margin-bottom: 16px;
+    }
+    .cart-resto-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+    .cart-resto-name {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--swiggy-black);
+    }
+    .cart-resto-loc {
+      font-size: 12px;
+      color: var(--swiggy-gray);
+    }
+
+    .cart-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .cart-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .cart-item-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .cart-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--swiggy-dark);
+    }
+    .cart-item-price {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--swiggy-black);
+      min-width: 60px;
+      text-align: right;
+    }
+
+    /* Coupon Box in Cart */
+    .cart-coupon-box {
+      border: 1px dashed var(--swiggy-orange);
+      background: var(--swiggy-orange-light);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .coupon-applied-tag {
+      background: var(--swiggy-green);
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Bill Breakdown */
+    .bill-details-card {
+      background: var(--swiggy-surface-light);
+      border: 1px solid var(--swiggy-border);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .bill-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--swiggy-gray-dark);
+      margin-bottom: 10px;
+    }
+    .bill-row.total {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--swiggy-black);
+      border-top: 1px solid var(--swiggy-border);
+      padding-top: 12px;
+      margin-top: 6px;
+      margin-bottom: 0;
+    }
+    .savings-badge {
+      background: #e7f7ed;
+      color: var(--swiggy-green);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 6px;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    .checkout-btn {
+      width: 100%;
+      background: var(--swiggy-green);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 800;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(17, 150, 67, 0.3);
+    }
+    .checkout-btn:hover {
+      background: #0f863c;
+    }
+
+    /* Bottom Floating Cart Bar */
+    .floating-cart-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      width: 90%;
+      max-width: 720px;
+      background: var(--swiggy-green);
+      color: white;
+      border-radius: var(--radius-md);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(17, 150, 67, 0.4);
+      z-index: 95;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .floating-cart-bar.visible {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ==========================================================================
+       SEARCH MODAL
+       ========================================================================== */
+    .search-modal-wrap {
+      max-width: 720px;
+    }
+    .search-input-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--swiggy-border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .search-main-input {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      color: var(--swiggy-black);
+    }
+    .search-suggestions-box {
+      padding: 24px;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+    .search-pill-tag {
+      background: var(--swiggy-surface);
+      border: 1px solid var(--swiggy-border);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .search-pill-tag:hover {
+      background: var(--swiggy-orange-light);
+      border-color: var(--swiggy-orange);
+      color: var(--swiggy-orange);
+    }
+
+    /* ==========================================================================
+       LIVE ORDER TRACKING MODAL
+       ========================================================================== */
+    .order-tracking-modal {
+      max-width: 580px;
+    }
+    .tracking-header {
+      background: #282c3f;
+      color: white;
+      padding: 20px 24px;
+    }
+    .tracking-map-canvas {
+      width: 100%;
+      height: 200px;
+      background: #eef0f5;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .bike-animation {
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      animation: driveBike 8s infinite linear;
+    }
+    @keyframes driveBike {
+      0% { left: 10%; transform: rotate(0deg); }
+      45% { left: 50%; transform: rotate(5deg); }
+      50% { left: 52%; transform: rotate(-5deg); }
+      100% { left: 85%; transform: rotate(0deg); }
+    }
+
+    .tracking-timeline {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .timeline-step {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+    .timeline-step::before {
+      content: '';
+      position: absolute;
+      left: 13px;
+      top: 26px;
+      bottom: -16px;
+      width: 2px;
+      background: var(--swiggy-border);
+    }
+    .timeline-step:last-child::before {
+      display: none;
+    }
+    .timeline-step.completed::before {
+      background: var(--swiggy-green);
+    }
+    .timeline-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #e2e2e7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #ffffff;
+      z-index: 1;
+    }
+    .timeline-step.completed .timeline-dot {
+      background: var(--swiggy-green);
+    }
+    .timeline-step.active .timeline-dot {
+      background: var(--swiggy-orange);
+      box-shadow: 0 0 0 4px rgba(252, 128, 25, 0.2);
+    }
+    .timeline-info h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--swiggy-black);
+    }
+    .timeline-info p {
+      font-size: 12px;
+      color: var(--swiggy-gray);
+    }
+
+    /* ==========================================================================
+       AUTH & USER PROFILE DRAWER
+       ========================================================================== */
+    .auth-form-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--swiggy-border);
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .auth-input:focus {
+      border-color: var(--swiggy-orange);
+    }
+    .auth-btn-submit {
+      background: var(--swiggy-orange);
+      color: white;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 14px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 12px rgba(252, 128, 25, 0.3);
+    }
+
+    /* ==========================================================================
+       TOAST NOTIFICATION
+       ========================================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast-msg {
+      background: #282c3f;
+      color: white;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: var(--swiggy-shadow-lg);
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: auto;
+    }
+    .toast-msg.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ==========================================================================
+       FOOTER
+       ========================================================================== */
+    .footer {
+      background: #02060c;
+      color: #ffffff;
+      padding: 60px 0 30px;
+      margin-top: 80px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+      gap: 36px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid #232738;
+    }
+    .footer-brand h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--swiggy-orange);
+      margin-bottom: 12px;
+    }
+    .footer-brand p {
+      font-size: 13px;
+      color: #93959f;
+      line-height: 1.6;
+    }
+    .footer-col h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: #ffffff;
+    }
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-col a {
+      font-size: 13px;
+      color: #93959f;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover {
+      color: #ffffff;
+    }
+    .footer-bottom {
+      padding-top: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #7e808c;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 992px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .header-nav .nav-item:nth-child(2),
+      .header-nav .nav-item:nth-child(3) {
+        display: none;
+      }
+    }
+    @media (max-width: 768px) {
+      :root { --header-height: 68px; }
+      .service-nav-bar { display: none; }
+      .header-left { gap: 12px; }
+      .location-subtitle { display: none; }
+      .deal-card { flex: 0 0 290px; height: 160px; }
+      .restaurant-grid { grid-template-columns: 1fr; }
+      .modal-center { width: 96%; max-height: 94vh; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       TOP APP HEADER
+       ========================================================================== -->
+  <header class="header">
+    <div class="container header-content">
+      <!-- Left: Brand Logo & Location -->
+      <div class="header-left">
+        <div class="logo-container" onclick="switchServiceTab('food')">
+          <div class="swiggy-logo-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2ZM12 11.5C10.62 11.5 9.5 10.38 9.5 9C9.5 7.62 10.62 6.5 12 6.5C13.38 6.5 14.5 7.62 14.5 9C14.5 10.38 13.38 11.5 12 11.5Z" fill="#ffffff"/>
+            </svg>
+          </div>
+          <span style="font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: var(--swiggy-orange);">Swiggy</span>
+        </div>
+
+        <div class="location-selector" onclick="openDrawer('locationDrawer')">
+          <span class="location-title" id="currentCityDisplay">Bengaluru</span>
+          <span class="location-subtitle" id="currentAddressDisplay">Koramangala, 5th Block, Bengaluru, Karnataka</span>
+          <span class="location-chevron">▼</span>
+        </div>
+      </div>
+
+      <!-- Center: Service Tabs (Food, Instamart, Dineout, Genie) -->
+      <div class="service-nav-bar">
+        <button class="service-nav-btn active" id="tabBtnFood" onclick="switchServiceTab('food')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+          Food Delivery
+        </button>
+        <button class="service-nav-btn" id="tabBtnInstamart" onclick="switchServiceTab('instamart')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 17H5V8h14v12z"/></svg>
+          Instamart <span style="font-size: 10px; color: var(--swiggy-purple); background: #f0e6fc; padding: 1px 5px; border-radius: 4px;">10 MINS</span>
+        </button>
+        <button class="service-nav-btn" id="tabBtnDineout" onclick="switchServiceTab('dineout')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/></svg>
+          Dineout
+        </button>
+        <button class="service-nav-btn" id="tabBtnGenie" onclick="switchServiceTab('genie')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9l1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          Genie
+        </button>
+      </div>
+
+      <!-- Right: Search, Offers, Help, Sign In, Cart -->
+      <nav class="header-nav">
+        <div class="nav-item" onclick="openSearchModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <span>Search</span>
+        </div>
+
+        <div class="nav-item" onclick="openOffersModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span>Offers <span class="nav-badge">NEW</span></span>
+        </div>
+
+        <div class="nav-item" onclick="openHelpDrawer()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span>Help</span>
+        </div>
+
+        <div class="nav-item" onclick="openAuthDrawer()" id="userNavButton">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span id="userNameNav">Sign In</span>
+        </div>
+
+        <div class="nav-item" onclick="openCartDrawer()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          <span>Cart</span>
+          <span class="cart-badge-count" id="cartCountBadge">0</span>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN CONTENT WRAPPER
+       ========================================================================== -->
+  <main>
+    <!-- FOOD DELIVERY VIEW -->
+    <div id="foodView">
+      <!-- Promotional Hero Banners -->
+      <section class="hero-banner-section">
+        <div class="container">
+          <div class="deals-banner-carousel" id="dealBannersCarousel">
+            <div class="deal-card" style="background-image: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&auto=format&fit=crop&q=80');" onclick="filterByOffer('FLAT ₹150 OFF')">
+              <div class="deal-card-overlay">
+                <span class="deal-card-tag">Match Day Special</span>
+                <h3 class="deal-card-title">FLAT ₹150 OFF</h3>
+                <p class="deal-card-sub">On orders above ₹299 from top spots</p>
+                <button class="deal-card-btn">Order Now →</button>
+              </div>
+            </div>
+            <div class="deal-card" style="background-image: url('https://images.unsplash.com/photo-1513104890138-7c749659a591?w=800&auto=format&fit=crop&q=80');" onclick="filterByOffer('UP TO 60% OFF')">
+              <div class="deal-card-overlay">
+                <span class="deal-card-tag" style="background: var(--swiggy-purple);">Gourmet Delight</span>
+                <h3 class="deal-card-title">UP TO 60% OFF</h3>
+                <p class="deal-card-sub">Premium pizzas, pastas & desserts</p>
+                <button class="deal-card-btn">Explore Gourmet →</button>
+              </div>
+            </div>
+            <div class="deal-card" style="background-image: url('https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=800&auto=format&fit=crop&q=80');" onclick="filterByOffer('BIRYANIS AT ₹129')">
+              <div class="deal-card-overlay">
+                <span class="deal-card-tag" style="background: var(--swiggy-green);">Biryani Fest</span>
+                <h3 class="deal-card-title">ITEMS AT ₹129</h3>
+                <p class="deal-card-sub">Authentic Hyderabadi & Dum Biryani</p>
+                <button class="deal-card-btn">Grab Deal →</button>
+              </div>
+            </div>
+            <div class="deal-card" style="background-image: url('https://images.unsplash.com/photo-1550547660-d9450f859349?w=800&auto=format&fit=crop&q=80');" onclick="filterByOffer('BURGER BASH')">
+              <div class="deal-card-overlay">
+                <span class="deal-card-tag" style="background: #ff5200;">Free Delivery</span>
+                <h3 class="deal-card-title">BURGER BASH</h3>
+                <p class="deal-card-sub">Crispy fries & juicy smashed burgers</p>
+                <button class="deal-card-btn">Order Burger →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="container">
+        <!-- 1. "What's on your mind?" Category Carousel -->
+        <section>
+          <div class="section-header">
+            <h2 class="section-title">What's on your mind?</h2>
+            <div class="carousel-arrows">
+              <button class="arrow-btn" onclick="scrollCarousel('categoryCarousel', -320)" aria-label="Previous categories">←</button>
+              <button class="arrow-btn" onclick="scrollCarousel('categoryCarousel', 320)" aria-label="Next categories">→</button>
+            </div>
+          </div>
+
+          <div class="category-carousel" id="categoryCarousel">
+            <!-- Category items dynamically loaded or pre-rendered -->
+            <div class="category-item" onclick="filterByCategory('Biryani')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=300&auto=format&fit=crop&q=80" alt="Biryani"></div>
+              <span class="category-name">Biryani</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Pizza')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=300&auto=format&fit=crop&q=80" alt="Pizzas"></div>
+              <span class="category-name">Pizzas</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Burgers')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=300&auto=format&fit=crop&q=80" alt="Burgers"></div>
+              <span class="category-name">Burgers</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('North Indian')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&auto=format&fit=crop&q=80" alt="North Indian"></div>
+              <span class="category-name">North Indian</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Chinese')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1525755662778-989d0524087e?w=300&auto=format&fit=crop&q=80" alt="Chinese"></div>
+              <span class="category-name">Chinese</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('South Indian')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=300&auto=format&fit=crop&q=80" alt="South Indian"></div>
+              <span class="category-name">South Indian</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Rolls')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=300&auto=format&fit=crop&q=80" alt="Rolls"></div>
+              <span class="category-name">Rolls</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Desserts')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?w=300&auto=format&fit=crop&q=80" alt="Desserts"></div>
+              <span class="category-name">Desserts</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Cakes')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=300&auto=format&fit=crop&q=80" alt="Cakes"></div>
+              <span class="category-name">Cakes</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Shawarma')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=300&auto=format&fit=crop&q=80" alt="Shawarma"></div>
+              <span class="category-name">Shawarma</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Ice Cream')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1501443762994-82bd5dace89a?w=300&auto=format&fit=crop&q=80" alt="Ice Cream"></div>
+              <span class="category-name">Ice Cream</span>
+            </div>
+            <div class="category-item" onclick="filterByCategory('Pasta')">
+              <div class="category-img-box"><img src="https://images.unsplash.com/photo-1621996346565-e3d5d6281691?w=300&auto=format&fit=crop&q=80" alt="Pasta"></div>
+              <span class="category-name">Pasta</span>
+            </div>
+          </div>
+        </section>
+
+        <div class="swiggy-divider"></div>
+
+        <!-- 2. Top Restaurant Chains in City -->
+        <section>
+          <div class="section-header">
+            <h2 class="section-title">Top restaurant chains in <span id="topChainCityTitle">Bengaluru</span></h2>
+            <div class="carousel-arrows">
+              <button class="arrow-btn" onclick="scrollCarousel('topChainsCarousel', -320)" aria-label="Previous chains">←</button>
+              <button class="arrow-btn" onclick="scrollCarousel('topChainsCarousel', 320)" aria-label="Next chains">→</button>
+            </div>
+          </div>
+
+          <div class="top-chains-carousel" id="topChainsCarousel">
+            <!-- Dynamically populated top chains -->
+          </div>
+        </section>
+
+        <div class="swiggy-divider"></div>
+
+        <!-- 3. Swiggy One VIP Card Promo -->
+        <div class="swiggy-one-banner">
+          <div class="swiggy-one-left">
+            <div class="swiggy-one-tag">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              SWIGGY ONE
+            </div>
+            <h3 class="swiggy-one-heading">Unlimited Free Delivery & Extra Discounts</h3>
+            <p class="swiggy-one-sub">Enjoy ₹0 delivery fee on food & Instamart orders above ₹149 + up to 30% extra off.</p>
+          </div>
+          <button class="swiggy-one-btn" onclick="showToast('Swiggy One membership activated for 3 months!')">Get 3 Months at ₹299</button>
+        </div>
+
+        <!-- 4. Sticky Filter Toolbar -->
+        <section id="restaurantsSection">
+          <div class="section-header" style="margin-bottom: 8px;">
+            <h2 class="section-title">Restaurants with online food delivery in <span id="restaurantListCityTitle">Bengaluru</span></h2>
+          </div>
+
+          <div class="filter-toolbar-sticky">
+            <div class="filter-pills-row">
+              <div class="filter-pill" id="filterSortBtn" onclick="toggleSortDropdown()">
+                <span>Sort By</span>
+                <span id="currentSortLabel" style="font-weight: 700; color: var(--swiggy-black); margin-left: 2px;">Relevance</span>
+                <span style="font-size: 10px;">▼</span>
+              </div>
+              <div class="filter-pill" id="filterFastDelivery" onclick="toggleFilter('fastDelivery')">
+                <span>Fast Delivery (< 30 mins)</span>
+              </div>
+              <div class="pure-veg-switch" id="filterPureVeg" onclick="toggleFilter('pureVeg')">
+                <div class="veg-icon-dot"></div>
+                <span>Pure Veg</span>
+              </div>
+              <div class="filter-pill" id="filterRating4" onclick="toggleFilter('rating4')">
+                <span>Ratings 4.0+</span>
+              </div>
+              <div class="filter-pill" id="filterOffers" onclick="toggleFilter('offers')">
+                <span>Offers</span>
+              </div>
+              <div class="filter-pill" id="filterCostLow" onclick="toggleFilter('costLow')">
+                <span>Less than ₹300</span>
+              </div>
+              <div class="filter-pill" id="filterCostMid" onclick="toggleFilter('costMid')">
+                <span>₹300 - ₹600</span>
+              </div>
+              <div class="filter-pill" id="clearAllFiltersBtn" onclick="clearAllFilters()" style="display: none; color: var(--swiggy-red); border-color: var(--swiggy-red);">
+                <span>✕ Clear All</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Restaurant Grid -->
+          <div class="restaurant-grid" id="mainRestaurantGrid">
+            <!-- Dynamically populated restaurants -->
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- INSTAMART VIEW (10 MINUTE GROCERIES) -->
+    <div id="instamartView" class="instamart-view">
+      <div class="container">
+        <div class="instamart-hero">
+          <div>
+            <span class="instamart-badge">INSTAMART ⚡ 10 MINS</span>
+            <h2>Fresh Groceries at your Doorstep</h2>
+            <p>Order fresh fruits, vegetables, dairy, snacks & household essentials anytime.</p>
+          </div>
+          <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80" alt="Groceries" style="width: 140px; height: 140px; border-radius: 50%; object-fit: cover; border: 4px solid #ffffff;">
+        </div>
+
+        <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Shop by Category</h3>
+        <div class="grocery-categories-grid">
+          <div class="grocery-cat-card" onclick="filterGroceryCategory('Dairy & Bread')">
+            <img src="https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200&auto=format&fit=crop&q=80" alt="Dairy">
+            <span class="grocery-cat-name">Dairy & Bread</span>
+          </div>
+          <div class="grocery-cat-card" onclick="filterGroceryCategory('Fruits & Veggies')">
+            <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=200&auto=format&fit=crop&q=80" alt="Fruits">
+            <span class="grocery-cat-name">Fresh Produce</span>
+          </div>
+          <div class="grocery-cat-card" onclick="filterGroceryCategory('Snacks & Munchies')">
+            <img src="https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200&auto=format&fit=crop&q=80" alt="Snacks">
+            <span class="grocery-cat-name">Snacks & Chips</span>
+          </div>
+          <div class="grocery-cat-card" onclick="filterGroceryCategory('Drinks & Juices')">
+            <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200&auto=format&fit=crop&q=80" alt="Drinks">
+            <span class="grocery-cat-name">Cold Drinks</span>
+          </div>
+          <div class="grocery-cat-card" onclick="filterGroceryCategory('Instant Food')">
+            <img src="https://images.unsplash.com/photo-1612927601601-6638404737ce?w=200&auto=format&fit=crop&q=80" alt="Noodles">
+            <span class="grocery-cat-name">Instant Food</span>
+          </div>
+          <div class="grocery-cat-card" onclick="filterGroceryCategory('Chocolates & Sweets')">
+            <img src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=200&auto=format&fit=crop&q=80" alt="Chocolates">
+            <span class="grocery-cat-name">Chocolates</span>
+          </div>
+        </div>
+
+        <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 16px;">Trending Groceries in 10 Mins</h3>
+        <div class="grocery-items-grid" id="groceryItemsGrid">
+          <!-- Dynamically populated grocery items -->
+        </div>
+      </div>
+    </div>
+
+    <!-- DINEOUT VIEW (RESTAURANT BOOKING & OFFERS) -->
+    <div id="dineoutView" class="dineout-view">
+      <div class="container">
+        <div class="dineout-hero">
+          <div>
+            <span style="background: rgba(255,255,255,0.25); padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 800;">SWIGGY DINEOUT</span>
+            <h2 style="font-size: 32px; font-weight: 800; margin: 8px 0;">Eat Out & Save Up to 50%</h2>
+            <p>Book tables, unlock exclusive dining deals and pay via Swiggy Dineout.</p>
+          </div>
+          <button style="background: white; color: var(--swiggy-red); padding: 12px 24px; border-radius: var(--radius-md); font-weight: 800; font-size: 14px;" onclick="showToast('Select a restaurant below to book a table!')">Explore Places</button>
+        </div>
+
+        <h3 style="font-size: 22px; font-weight: 800; margin-bottom: 20px;">Top Rated Dining Destinations</h3>
+        <div class="dineout-grid" id="dineoutGrid">
+          <!-- Dynamically rendered dineout cards -->
+        </div>
+      </div>
+    </div>
+
+    <!-- GENIE VIEW (PICK UP & DROP) -->
+    <div id="genieView" class="genie-view">
+      <div class="container">
+        <div class="genie-card-box">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <div style="background: var(--swiggy-orange-light); color: var(--swiggy-orange); width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+              🛵
+            </div>
+            <div>
+              <h2 class="genie-title" style="margin: 0;">Swiggy Genie</h2>
+              <span style="font-size: 13px; color: var(--swiggy-gray);">Anything you need, delivered instantly</span>
+            </div>
+          </div>
+          <p class="genie-desc">Send documents, forgotten keys, home-cooked lunchboxes, chargers or packages across town in minutes.</p>
+
+          <div class="genie-input-group">
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: var(--swiggy-gray-dark); margin-bottom: 4px; display: block;">PICKUP LOCATION</label>
+              <div class="genie-input-box">
+                <span style="color: var(--swiggy-orange);">📍</span>
+                <input type="text" id="geniePickupInput" placeholder="Enter complete pickup address" value="Koramangala 5th Block, Bengaluru">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: var(--swiggy-gray-dark); margin-bottom: 4px; display: block;">DROP LOCATION</label>
+              <div class="genie-input-box">
+                <span style="color: var(--swiggy-green);">🏁</span>
+                <input type="text" id="genieDropInput" placeholder="Enter recipient delivery address" value="Indiranagar 100ft Road, Bengaluru">
+              </div>
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: var(--swiggy-gray-dark); margin-bottom: 4px; display: block;">PACKAGE DETAILS</label>
+              <div class="genie-input-box">
+                <span>📦</span>
+                <input type="text" id="geniePackageInput" placeholder="E.g. Documents, Laptop Charger, Clothes (under 10kg)">
+              </div>
+            </div>
+          </div>
+
+          <div style="background: var(--swiggy-surface); padding: 14px; border-radius: var(--radius-md); margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 14px; font-weight: 600;">Estimated Delivery Fee (4.2 km)</span>
+            <span style="font-size: 18px; font-weight: 800; color: var(--swiggy-black);">₹65</span>
+          </div>
+
+          <button class="genie-submit-btn" onclick="triggerGenieOrder()">Book Genie Partner →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Download Section -->
+    <section class="container" style="margin-top: 40px;">
+      <div class="app-download-section">
+        <div class="container app-download-inner">
+          <div class="app-download-text">
+            <h3>For better experience, download the Swiggy app now</h3>
+            <p>Get real-time tracking, live order notifications and exclusive app-only deals.</p>
+          </div>
+          <div class="app-store-badges">
+            <div class="app-badge-btn" onclick="showToast('Redirecting to Google Play Store...')">
+              <svg viewBox="0 0 24 24"><path d="M3.609 1.814L13.792 12 3.61 22.186a1.984 1.984 0 0 1-.22-.924V2.738c0-.342.08-.66.22-.924zM15.207 13.414l2.586 2.586-11.97 6.84 9.384-9.426zm2.586-5.414l-2.586 2.586-9.384-9.426 11.97 6.84zM18.85 10.3l2.87 1.64c.7.4.7 1.06 0 1.46l-2.87 1.64-2.85-2.85 2.85-2.89z"/></svg>
+              <div>
+                <div class="app-badge-sub">GET IT ON</div>
+                <div class="app-badge-main">Google Play</div>
+              </div>
+            </div>
+            <div class="app-badge-btn" onclick="showToast('Redirecting to Apple App Store...')">
+              <svg viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.87-.93.04-2.02.63-2.66 1.38-.56.65-1.06 1.71-.93 2.74 1.05.08 2.07-.53 2.67-1.25z"/></svg>
+              <div>
+                <div class="app-badge-sub">Download on the</div>
+                <div class="app-badge-main">App Store</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ==========================================================================
+       BOTTOM FLOATING CART BAR
+       ========================================================================== -->
+  <div class="floating-cart-bar" id="floatingCartBar" onclick="openCartDrawer()">
+    <div class="flex items-center gap-3">
+      <div style="background: rgba(255,255,255,0.25); padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 13px;" id="floatingItemCount">1 ITEM</div>
+      <span style="font-weight: 700; font-size: 15px;" id="floatingTotal">₹350</span>
+      <span style="font-size: 12px; opacity: 0.9;">plus taxes</span>
+    </div>
+    <div class="flex items-center gap-2" style="font-weight: 800; font-size: 14px;">
+      <span>View Cart</span>
+      <span>→</span>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODALS & DRAWERS
+       ========================================================================== -->
+  <!-- Generic Backdrop -->
+  <div class="modal-backdrop" id="modalBackdrop" onclick="closeAllModals()"></div>
+
+  <!-- 1. RESTAURANT MENU MODAL -->
+  <div class="modal-center" id="restaurantMenuModal">
+    <div class="resto-header-banner" id="restoModalBanner">
+      <button class="drawer-close-btn" style="position: absolute; top: 16px; right: 16px;" onclick="closeModal('restaurantMenuModal')">✕</button>
+      <div class="resto-title-row">
+        <div>
+          <h2 class="resto-header-title" id="modalRestoName">Meghana Foods</h2>
+          <p class="resto-header-meta" id="modalRestoCuisines">Biryani, Andhra, South Indian • Koramangala</p>
+          <div style="display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; color: var(--swiggy-gray-dark);">
+            <span>🚴 25-30 mins</span>
+            <span>•</span>
+            <span id="modalRestoCost">₹400 for two</span>
+          </div>
+        </div>
+        <div class="resto-rating-card">
+          <div class="resto-rating-score" id="modalRestoRating">★ 4.4</div>
+          <div class="resto-rating-count">10K+ ratings</div>
+        </div>
+      </div>
+
+      <div class="resto-offers-scroller" id="modalRestoOffers">
+        <!-- Restaurant specific deals -->
+      </div>
+    </div>
+
+    <!-- Menu items list -->
+    <div class="menu-body-wrap" id="modalRestoMenuBody">
+      <div class="menu-filter-bar">
+        <div class="flex items-center gap-3">
+          <div class="pure-veg-switch" id="modalVegFilterBtn" onclick="toggleMenuVegFilter()">
+            <div class="veg-icon-dot"></div>
+            <span>Veg Only</span>
+          </div>
+          <span style="font-size: 13px; color: var(--swiggy-gray); font-weight: 600;" id="menuItemCountDisplay">18 Items</span>
+        </div>
+        <input type="text" class="menu-search-input" id="menuSearchInput" placeholder="Search dish in menu..." oninput="filterMenuSearch(this.value)">
+      </div>
+
+      <div id="menuItemsContainer">
+        <!-- Rendered menu categories & items -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. CART SLIDE-IN DRAWER -->
+  <div class="drawer-right" id="cartDrawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title">Your Cart</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('cartDrawer')">✕</button>
+    </div>
+
+    <div class="drawer-body" id="cartDrawerBody">
+      <!-- Cart content dynamically populated -->
+    </div>
+
+    <div class="drawer-footer" id="cartDrawerFooter" style="display: none;">
+      <button class="checkout-btn" onclick="proceedToCheckout()">
+        <div>
+          <div style="font-size: 16px;" id="cartCheckoutTotal">₹0</div>
+          <div style="font-size: 10px; opacity: 0.9; text-transform: uppercase;">TOTAL AMOUNT</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span>PROCEED TO PAY</span>
+          <span>→</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3. SEARCH MODAL -->
+  <div class="modal-center search-modal-wrap" id="searchModal">
+    <div class="search-input-header">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--swiggy-gray)" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" class="search-main-input" id="mainSearchInput" placeholder="Search for restaurants, cuisines or dishes..." oninput="handleGlobalSearch(this.value)">
+      <button class="drawer-close-btn" onclick="closeModal('searchModal')">✕</button>
+    </div>
+
+    <div class="search-suggestions-box" id="searchSuggestionsBox">
+      <div style="margin-bottom: 20px;">
+        <h4 style="font-size: 14px; font-weight: 700; color: var(--swiggy-gray); margin-bottom: 12px; text-transform: uppercase;">Popular Cuisines</h4>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+          <span class="search-pill-tag" onclick="quickSearch('Biryani')">Biryani</span>
+          <span class="search-pill-tag" onclick="quickSearch('Pizza')">Pizza</span>
+          <span class="search-pill-tag" onclick="quickSearch('Burger')">Burger</span>
+          <span class="search-pill-tag" onclick="quickSearch('North Indian')">North Indian</span>
+          <span class="search-pill-tag" onclick="quickSearch('Chinese')">Chinese</span>
+          <span class="search-pill-tag" onclick="quickSearch('Cake')">Cake</span>
+          <span class="search-pill-tag" onclick="quickSearch('Dosa')">Dosa</span>
+          <span class="search-pill-tag" onclick="quickSearch('Rolls')">Rolls</span>
+        </div>
+      </div>
+
+      <div id="searchResultsList">
+        <!-- Live search results -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. LOCATION DRAWER (LEFT) -->
+  <div class="drawer-left" id="locationDrawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title">Choose Delivery Location</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('locationDrawer')">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div style="margin-bottom: 20px;">
+        <input type="text" id="locationSearchInput" class="auth-input" placeholder="Search for area, street name..." oninput="handleLocationSearch(this.value)">
+      </div>
+
+      <div style="border: 1px solid var(--swiggy-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 24px; transition: background 0.2s;" onclick="useCurrentLocation()">
+        <span style="color: var(--swiggy-orange); font-size: 18px;">🎯</span>
+        <div>
+          <h4 style="font-size: 14px; font-weight: 700; color: var(--swiggy-orange);">Use Current Location</h4>
+          <span style="font-size: 12px; color: var(--swiggy-gray);">Using GPS for pinpoint accuracy</span>
+        </div>
+      </div>
+
+      <h4 style="font-size: 13px; font-weight: 700; color: var(--swiggy-gray-light); text-transform: uppercase; margin-bottom: 12px;">Popular Cities</h4>
+      <div style="display: flex; flex-direction: column; gap: 8px;" id="popularCitiesList">
+        <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="selectCity('Bengaluru', 'Koramangala, 5th Block, Bengaluru, Karnataka')">
+          <span>Bengaluru</span>
+          <span style="font-size: 11px; color: var(--swiggy-gray);">Koramangala / Indiranagar</span>
+        </div>
+        <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="selectCity('Mumbai', 'Bandra West, Linking Road, Mumbai, Maharashtra')">
+          <span>Mumbai</span>
+          <span style="font-size: 11px; color: var(--swiggy-gray);">Bandra / Andheri</span>
+        </div>
+        <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="selectCity('Delhi NCR', 'Connaught Place, Central Delhi, Delhi')">
+          <span>Delhi NCR</span>
+          <span style="font-size: 11px; color: var(--swiggy-gray);">Connaught Place / Gurgaon</span>
+        </div>
+        <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="selectCity('Hyderabad', 'Hitech City, Madhapur, Hyderabad, Telangana')">
+          <span>Hyderabad</span>
+          <span style="font-size: 11px; color: var(--swiggy-gray);">Hitech City / Jubilee Hills</span>
+        </div>
+        <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="selectCity('Chennai', 'T. Nagar, Anna Nagar, Chennai, Tamil Nadu')">
+          <span>Chennai</span>
+          <span style="font-size: 11px; color: var(--swiggy-gray);">T. Nagar / Anna Salai</span>
+        </div>
+        <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="selectCity('Pune', 'Koregaon Park, FC Road, Pune, Maharashtra')">
+          <span>Pune</span>
+          <span style="font-size: 11px; color: var(--swiggy-gray);">Koregaon Park / Viman Nagar</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. OFFERS & COUPONS MODAL -->
+  <div class="modal-center" id="offersModal" style="max-width: 640px;">
+    <div class="drawer-header">
+      <h3 class="drawer-title">Available Offers & Coupons</h3>
+      <button class="drawer-close-btn" onclick="closeModal('offersModal')">✕</button>
+    </div>
+    <div class="drawer-body" style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="border: 1.5px dashed var(--swiggy-orange); border-radius: var(--radius-md); padding: 16px; background: var(--swiggy-orange-light); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="background: var(--swiggy-orange); color: white; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">WELCOME50</span>
+          <h4 style="font-size: 15px; font-weight: 800; margin: 6px 0 2px;">50% OFF up to ₹100</h4>
+          <p style="font-size: 12px; color: var(--swiggy-gray);">Valid on orders above ₹149 for new orders</p>
+        </div>
+        <button style="background: var(--swiggy-orange); color: white; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 6px;" onclick="applySpecificCoupon('WELCOME50', 50, 100)">APPLY</button>
+      </div>
+
+      <div style="border: 1.5px dashed var(--swiggy-green); border-radius: var(--radius-md); padding: 16px; background: #eef8f2; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="background: var(--swiggy-green); color: white; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">STEALDEAL</span>
+          <h4 style="font-size: 15px; font-weight: 800; margin: 6px 0 2px;">FLAT ₹120 OFF</h4>
+          <p style="font-size: 12px; color: var(--swiggy-gray);">Valid on orders above ₹299 across all restaurants</p>
+        </div>
+        <button style="background: var(--swiggy-green); color: white; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 6px;" onclick="applySpecificCoupon('STEALDEAL', 0, 120)">APPLY</button>
+      </div>
+
+      <div style="border: 1.5px dashed var(--swiggy-purple); border-radius: var(--radius-md); padding: 16px; background: #f6edfc; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="background: var(--swiggy-purple); color: white; font-size: 12px; font-weight: 800; padding: 3px 8px; border-radius: 4px;">SWIGGYIT</span>
+          <h4 style="font-size: 15px; font-weight: 800; margin: 6px 0 2px;">20% OFF up to ₹150</h4>
+          <p style="font-size: 12px; color: var(--swiggy-gray);">Use on any gourmet dining or multi-cuisine order</p>
+        </div>
+        <button style="background: var(--swiggy-purple); color: white; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: 6px;" onclick="applySpecificCoupon('SWIGGYIT', 20, 150)">APPLY</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. USER SIGN IN / PROFILE DRAWER -->
+  <div class="drawer-right" id="authDrawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title" id="authDrawerTitle">Sign In</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('authDrawer')">✕</button>
+    </div>
+
+    <div class="drawer-body">
+      <div id="loggedOutState">
+        <div style="margin-bottom: 24px;">
+          <h4 style="font-size: 20px; font-weight: 800; color: var(--swiggy-black);">Login or Create Account</h4>
+          <p style="font-size: 13px; color: var(--swiggy-gray);">Enter your phone number to proceed</p>
+        </div>
+
+        <form class="auth-form-wrap" onsubmit="handleAuthSubmit(event)">
+          <input type="tel" id="userPhoneInput" class="auth-input" placeholder="Phone number (10 digits)" maxlength="10" required pattern="[0-9]{10}">
+          <input type="text" id="userNameInput" class="auth-input" placeholder="Your Name (e.g. Hari Raja)" required>
+          <button type="submit" class="auth-btn-submit">LOGIN WITH OTP</button>
+        </form>
+
+        <p style="font-size: 11px; color: var(--swiggy-gray-light); margin-top: 16px; line-height: 1.5;">
+          By clicking on Login, I accept the <a href="#" style="text-decoration: underline;">Terms & Conditions</a> & <a href="#" style="text-decoration: underline;">Privacy Policy</a>.
+        </p>
+      </div>
+
+      <div id="loggedInState" style="display: none;">
+        <div style="display: flex; align-items: center; gap: 14px; padding-bottom: 20px; border-bottom: 1px solid var(--swiggy-border); margin-bottom: 20px;">
+          <div style="width: 54px; height: 54px; border-radius: 50%; background: var(--swiggy-orange); color: white; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center;" id="userAvatar">H</div>
+          <div>
+            <h4 style="font-size: 18px; font-weight: 800;" id="userProfileName">Hari Raja</h4>
+            <p style="font-size: 13px; color: var(--swiggy-gray);" id="userProfilePhone">+91 9876543210</p>
+            <span style="font-size: 11px; font-weight: 700; color: var(--swiggy-gold); background: #282c3f; padding: 2px 8px; border-radius: 4px; display: inline-block; margin-top: 4px;">★ SWIGGY ONE MEMBER</span>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="showToast('Your saved addresses are active!')">
+            <span>📍 Saved Addresses (Home, Office)</span>
+            <span>→</span>
+          </div>
+          <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="openOrderTrackingModal()">
+            <span>🚴 Live Orders & History</span>
+            <span>→</span>
+          </div>
+          <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="showToast('Swiggy Money Balance: ₹250.00')">
+            <span>💳 Swiggy Money Balance (₹250)</span>
+            <span>→</span>
+          </div>
+          <button style="margin-top: 24px; padding: 12px; border: 1px solid var(--swiggy-red); color: var(--swiggy-red); font-weight: 700; border-radius: 8px; width: 100%;" onclick="handleLogout()">LOGOUT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. LIVE ORDER TRACKING MODAL -->
+  <div class="modal-center order-tracking-modal" id="orderTrackingModal">
+    <div class="tracking-header">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <span style="font-size: 11px; font-weight: 800; background: var(--swiggy-orange); padding: 2px 8px; border-radius: 4px;">ORDER #SWG-984210</span>
+          <h3 style="font-size: 20px; font-weight: 800; margin-top: 6px;">Arriving in 24 Mins</h3>
+        </div>
+        <button class="drawer-close-btn" style="background: rgba(255,255,255,0.2); color: white;" onclick="closeModal('orderTrackingModal')">✕</button>
+      </div>
+    </div>
+
+    <div class="tracking-map-canvas">
+      <!-- Animated Map Route Visualizer -->
+      <svg width="100%" height="100%" viewBox="0 0 500 200" preserveAspectRatio="none" style="position: absolute; inset: 0;">
+        <path d="M 40 100 Q 150 40, 250 110 T 450 100" fill="none" stroke="#fc8019" stroke-width="4" stroke-dasharray="6,6"/>
+      </svg>
+      <div style="position: absolute; left: 30px; top: 80px; background: #282c3f; color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">
+        🍳 Restaurant
+      </div>
+      <div class="bike-animation" style="top: 75px;">
+        <div style="font-size: 28px;">🛵</div>
+      </div>
+      <div style="position: absolute; right: 30px; top: 80px; background: var(--swiggy-green); color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700;">
+        🏠 You
+      </div>
+    </div>
+
+    <div class="tracking-timeline">
+      <div class="timeline-step completed">
+        <div class="timeline-dot">✓</div>
+        <div class="timeline-info">
+          <h4>Order Confirmed</h4>
+          <p>Restaurant has accepted your order</p>
+        </div>
+      </div>
+      <div class="timeline-step completed">
+        <div class="timeline-dot">✓</div>
+        <div class="timeline-info">
+          <h4>Food is Being Prepared</h4>
+          <p>Fresh ingredients are sizzling on the grill</p>
+        </div>
+      </div>
+      <div class="timeline-step active">
+        <div class="timeline-dot">🛵</div>
+        <div class="timeline-info">
+          <h4>Delivery Partner Assigned</h4>
+          <p>Ramesh Kumar (★ 4.9) is picking up your order</p>
+        </div>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-dot">📍</div>
+        <div class="timeline-info">
+          <h4>Order Delivered</h4>
+          <p>Enjoy your hot & delicious meal!</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 16px 24px; border-top: 1px solid var(--swiggy-border); background: #fafafa; display: flex; justify-content: space-between; align-items: center;">
+      <div style="font-size: 13px; font-weight: 600;">Need help with your delivery?</div>
+      <button style="background: var(--swiggy-black); color: white; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 700;" onclick="showToast('Connecting you to Swiggy Support...')">Call Support</button>
+    </div>
+  </div>
+
+  <!-- 8. HELP & SUPPORT DRAWER -->
+  <div class="drawer-right" id="helpDrawer">
+    <div class="drawer-header">
+      <h3 class="drawer-title">Help & Support</h3>
+      <button class="drawer-close-btn" onclick="closeDrawer('helpDrawer')">✕</button>
+    </div>
+    <div class="drawer-body" style="display: flex; flex-direction: column; gap: 14px;">
+      <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="showToast('I have a query with my order: Support agent will assist.')">
+        <span>I have a query with my past order</span>
+        <span>→</span>
+      </div>
+      <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="showToast('Swiggy One Support: VIP fast-lane active!')">
+        <span>Swiggy One Membership FAQs</span>
+        <span>→</span>
+      </div>
+      <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="showToast('Refund status: No pending refunds.')">
+        <span>Refunds & Payment issues</span>
+        <span>→</span>
+      </div>
+      <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="showToast('Instamart delivery is 100% on-time.')">
+        <span>Instamart 10-min Guarantee FAQs</span>
+        <span>→</span>
+      </div>
+      <div class="filter-pill" style="border-radius: 8px; justify-content: space-between;" onclick="showToast('Legal & Terms opened.')">
+        <span>General Terms & Conditions</span>
+        <span>→</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ==========================================================================
+       FOOTER
+       ========================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h2>Swiggy</h2>
+          <p>© 2026 Bundl Technologies Pvt. Ltd.<br>Delivering happiness to millions across India with speed and love.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#" onclick="showToast('About us')">About</a></li>
+            <li><a href="#" onclick="showToast('Careers at Swiggy')">Careers</a></li>
+            <li><a href="#" onclick="showToast('Team Swiggy')">Team</a></li>
+            <li><a href="#" onclick="showToast('Swiggy One VIP')">Swiggy One</a></li>
+            <li><a href="#" onclick="showToast('Swiggy Instamart')">Swiggy Instamart</a></li>
+            <li><a href="#" onclick="showToast('Swiggy Dineout')">Swiggy Dineout</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Contact Us</h4>
+          <ul>
+            <li><a href="#" onclick="openHelpDrawer()">Help & Support</a></li>
+            <li><a href="#" onclick="showToast('Partner with us')">Partner with us</a></li>
+            <li><a href="#" onclick="showToast('Ride with us')">Ride with us</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="#" onclick="showToast('Terms & Conditions')">Terms & Conditions</a></li>
+            <li><a href="#" onclick="showToast('Cookie Policy')">Cookie Policy</a></li>
+            <li><a href="#" onclick="showToast('Privacy Policy')">Privacy Policy</a></li>
+            <li><a href="#" onclick="showToast('Investor Relations')">Investor Relations</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>We deliver to</h4>
+          <ul>
+            <li><a href="#" onclick="selectCity('Bengaluru', 'Koramangala, Bengaluru')">Bengaluru</a></li>
+            <li><a href="#" onclick="selectCity('Mumbai', 'Bandra West, Mumbai')">Mumbai</a></li>
+            <li><a href="#" onclick="selectCity('Delhi NCR', 'Connaught Place, Delhi')">Delhi NCR</a></li>
+            <li><a href="#" onclick="selectCity('Hyderabad', 'Hitech City, Hyderabad')">Hyderabad</a></li>
+            <li><a href="#" onclick="selectCity('Chennai', 'T. Nagar, Chennai')">Chennai</a></li>
+            <li><a href="#" onclick="selectCity('Pune', 'Koregaon Park, Pune')">Pune</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>Made with ❤️ for food & grocery lovers everywhere.</span>
+        <span>Swiggy Web Frontend Replica</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       JAVASCRIPT LOGIC & STATE MANAGEMENT
+       ========================================================================== -->
+  <script>
+    /* --------------------------------------------------------------------------
+       1. DATA DEFINITIONS (Restaurants, Menus, Groceries, Dineout Places)
+       -------------------------------------------------------------------------- */
+    const RESTAURANTS_DATA = [
+      {
+        id: 'resto-1',
+        name: 'Meghana Foods',
+        rating: 4.5,
+        ratingCount: '15K+',
+        time: '25-30 mins',
+        deliveryTimeMins: 25,
+        costForTwo: 400,
+        costLabel: '₹400 for two',
+        cuisines: ['Biryani', 'Andhra', 'South Indian'],
+        locality: 'Koramangala 5th Block',
+        city: 'Bengaluru',
+        image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=700&auto=format&fit=crop&q=80',
+        offer: '₹125 OFF ABOVE ₹249',
+        isPureVeg: false,
+        isChain: true,
+        menu: [
+          { id: 'm1-1', name: 'Meghana Special Chicken Biryani', price: 340, desc: 'Signature boneless chicken cubes marinated in spices, layered with fragrant basmati rice.', isVeg: false, rating: 4.7, image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400&auto=format&fit=crop&q=80', category: 'Recommended' },
+          { id: 'm1-2', name: 'Hyderabadi Paneer Biryani', price: 290, desc: 'Fresh soft cottage cheese cubes cooked in rich Andhra spices and sealed with long grain rice.', isVeg: true, rating: 4.4, image: 'https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=400&auto=format&fit=crop&q=80', category: 'Recommended' },
+          { id: 'm1-3', name: 'Andhra Chilli Chicken', price: 310, desc: 'Tender chicken pieces tossed with green chillies, curry leaves and secret coastal spice mix.', isVeg: false, rating: 4.6, image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=400&auto=format&fit=crop&q=80', category: 'Starters' },
+          { id: 'm1-4', name: 'Paneer 65', price: 270, desc: 'Crisp spicy cottage cheese cubes tempered with mustard seeds and yogurt gravy.', isVeg: true, rating: 4.3, image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=400&auto=format&fit=crop&q=80', category: 'Starters' },
+          { id: 'm1-5', name: 'Gulab Jamun with Rabdi (2 Pcs)', price: 120, desc: 'Warm melt-in-mouth milk dumplings served with thickened saffron rabdi.', isVeg: true, rating: 4.8, image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&auto=format&fit=crop&q=80', category: 'Desserts' }
+        ]
+      },
+      {
+        id: 'resto-2',
+        name: 'Burger King',
+        rating: 4.3,
+        ratingCount: '25K+',
+        time: '20-25 mins',
+        deliveryTimeMins: 20,
+        costForTwo: 350,
+        costLabel: '₹350 for two',
+        cuisines: ['Burgers', 'American', 'Fast Food'],
+        locality: 'Forum Mall, Koramangala',
+        city: 'Bengaluru',
+        image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=700&auto=format&fit=crop&q=80',
+        offer: 'ITEMS AT ₹129',
+        isPureVeg: false,
+        isChain: true,
+        menu: [
+          { id: 'm2-1', name: 'Crispy Veg Double Patty Burger', price: 149, desc: 'Double crunchy veg patty with fresh lettuce, mayo and toasted sesame bun.', isVeg: true, rating: 4.2, image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=400&auto=format&fit=crop&q=80', category: 'Recommended' },
+          { id: 'm2-2', name: 'Chicken Whopper Meal', price: 319, desc: 'Flame grilled signature chicken whopper served with large fries and cold beverage.', isVeg: false, rating: 4.6, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&auto=format&fit=crop&q=80', category: 'Recommended' },
+          { id: 'm2-3', name: 'Peri Peri Cheesy Fries', price: 139, desc: 'Golden crispy potato fries dusted with spicy peri peri seasoning & cheese sauce.', isVeg: true, rating: 4.5, image: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?w=400&auto=format&fit=crop&q=80', category: 'Sides' },
+          { id: 'm2-4', name: 'Chocolate Thick Shake', price: 169, desc: 'Thick creamy Belgian chocolate milkshake topped with chocolate drizzle.', isVeg: true, rating: 4.4, image: 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&auto=format&fit=crop&q=80', category: 'Beverages' }
+        ]
+      },
+      {
+        id: 'resto-3',
+        name: "Domino's Pizza",
+        rating: 4.4,
+        ratingCount: '40K+',
+        time: '20-25 mins',
+        deliveryTimeMins: 20,
+        costForTwo: 400,
+        costLabel: '₹400 for two',
+        cuisines: ['Pizzas', 'Italian', 'Pastas', 'Desserts'],
+        locality: 'Indiranagar 100ft Road',
+        city: 'Bengaluru',
+        image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=700&auto=format&fit=crop&q=80',
+        offer: '50% OFF UP TO ₹100',
+        isPureVeg: false,
+        isChain: true,
+        menu: [
+          { id: 'm3-1', name: 'Farmhouse Supreme Pizza', price: 399, desc: 'Delightful combination of onion, crisp capsicum, grilled mushroom and fresh juicy tomato.', isVeg: true, rating: 4.6, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&auto=format&fit=crop&q=80', category: 'Recommended' },
+          { id: 'm3-2', name: 'Pepper Barbecue Chicken Pizza', price: 449, desc: 'Loaded with pepper barbecue chicken, melted mozzarella cheese on freshly hand-stretched dough.', isVeg: false, rating: 4.7, image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&auto=format&fit=crop&q=80', category: 'Recommended' },
+          { id: 'm3-3', name: 'Stuffed Garlic Breadsticks', price: 169, desc: 'Freshly baked garlic breadsticks stuffed with cheesy jalapeño filling.', isVeg: true, rating: 4.8, image: 'https://images.unsplash.com/photo-1619535860434-ba1d8fa12536?w=400&auto=format&fit=crop&q=80', category: 'Sides' },
+          { id: 'm3-4', name: 'Choco Lava Cake', price: 119, desc: 'Warm gooey molten chocolate cake with a chocolate heart center.', isVeg: true, rating: 4.9, image: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&auto=format&fit=crop&q=80', category: 'Desserts' }
+        ]
+      },
+      {
+        id: 'resto-4',
+        name: 'Haldiram’s Sweets & Snacks',
+        rating: 4.6,
+        ratingCount: '18K+',
+        time: '18-22 mins',
+        deliveryTimeMins: 18,
+        costForTwo: 250,
+        costLabel: '₹250 for two',
+        cuisines: ['North Indian', 'Chaat', 'Street Food', 'Sweets'],
+        locality: 'MG Road',
+        city: 'Bengaluru',
+        image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=700&auto=format&fit=crop&q=80',
+        offer: 'FLAT ₹50 OFF',
+        isPureVeg: true,
+        isChain: true,
+        menu: [
+          { id: 'm4-1', name: 'Special Chole Bhature (2 Pcs)', price: 180, desc: 'Fluffy large bhature served with rich spicy Amritsari chole, pickled onions and mint chutney.', isVeg: true, rating: 4.8, image: 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?w=400&auto=format&fit=crop&q=80', category: 'Recommended' },
+          { id: 'm4-2', name: 'Raj Kachori Chaat', price: 140, desc: 'Crispy giant kachori shell loaded with spiced lentils, potatoes, yogurt and tamarind glazes.', isVeg: true, rating: 4.7, image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=400&auto=format&fit=crop&q=80', category: 'Chaat' },
+          { id: 'm4-3', name: 'Rasmalai (2 Pcs)', price: 110, desc: 'Soft saffron cottage cheese discs soaked in creamy cardamom flavored milk.', isVeg: true, rating: 4.9, image: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&auto=format&fit=crop&q=80', category: 'Sweets' }
+        ]
+      },
+      {
+        id: 'resto-5',
+        name: 'Truffles All American Diner',
+        rating: 4.7,
+        ratingCount: '32K+',
+        time: '30-35 mins',
+        deliveryTimeMins: 30,
+        costForTwo: 500,
+        costLabel: '₹500 for two',
+        cuisines: ['Burgers', 'Continental', 'Steaks', 'Pastas'],
+        locality: 'St. Marks Road',
+        city: 'Bengaluru',
+        image: 'https://images.unsplash.com/photo-1550547660-d9450f859349?w=700&auto=format&fit=crop&q=80',
+        offer: '20% OFF UP TO ₹120',
+        isPureVeg: false,
+        isChain: true,
+        menu: [
+          { id: 'm5-1', name: 'All American Cheese Burger', price: 270, desc: 'Prime grilled patty with aged cheddar, caramelized onions, gherkins and secret truffle sauce.', isVeg: false, rating: 4.8, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&auto=format&fit=crop&q=80', category: 'Recommended' },
+          { id: 'm5-2', name: 'Alfredo Creamy Penne Pasta', price: 290, desc: 'Penne pasta tossed in velvety garlic parmesan cream sauce with sautéed mushrooms.', isVeg: true, rating: 4.6, image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281691?w=400&auto=format&fit=crop&q=80', category: 'Pastas' },
+          { id: 'm5-3', name: 'Dutch Truffle Pastry', price: 160, desc: 'Layered rich Belgian dark chocolate sponge drenched in chocolate ganache.', isVeg: true, rating: 4.9, image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&auto=format&fit=crop&q=80', category: 'Desserts' }
+        ]
+      },
+      {
+        id: 'resto-6',
+        name: 'Behrouz Biryani - Royal Edition',
+        rating: 4.4,
+        ratingCount: '12K+',
+        time: '28-32 mins',
+        deliveryTimeMins: 28,
+        costForTwo: 550,
+        costLabel: '₹550 for two',
+        cuisines: ['Biryani', 'Mughlai', 'Kebabs'],
+        locality: 'HSR Layout Sector 4',
+        city: 'Bengaluru',
+        image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=700&auto=format&fit=crop&q=80',
+        offer: 'FLAT ₹150 OFF',
+        isPureVeg: false,
+        isChain: false,
+        menu: [
+          { id: 'm6-1', name: 'Dum Gosht Mutton Biryani', price: 490, desc: 'Tender succulent mutton pieces slow cooked with fragrant saffron basmati rice.', isVeg: false, rating: 4.7, image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=400&auto=format&fit=crop&q=80', category: 'Royal Biryanis' },
+          { id: 'm6-2', name: 'Zaikedaar Paneer Biryani', price: 360, desc: 'Marinated paneer cubes in aromatic royal spices served with creamy raita.', isVeg: true, rating: 4.5, image: 'https://images.unsplash.com/photo-1645177628172-a94c1f96e6db?w=400&auto=format&fit=crop&q=80', category: 'Royal Biryanis' }
+        ]
+      },
+      {
+        id: 'resto-7',
+        name: 'Leon’s Burgers & Wings',
+        rating: 4.5,
+        ratingCount: '9K+',
+        time: '22-26 mins',
+        deliveryTimeMins: 22,
+        costForTwo: 380,
+        costLabel: '₹380 for two',
+        cuisines: ['Burgers', 'Fast Food', 'Snacks', 'Wings'],
+        locality: 'Koramangala 7th Block',
+        city: 'Bengaluru',
+        image: 'https://images.unsplash.com/photo-1525755662778-989d0524087e?w=700&auto=format&fit=crop&q=80',
+        offer: '30% OFF UP TO ₹75',
+        isPureVeg: false,
+        isChain: true,
+        menu: [
+          { id: 'm7-1', name: 'Smoky BBQ Chicken Wings (6 Pcs)', price: 249, desc: 'Crispy fried wings tossed in authentic hickory smoky BBQ glaze.', isVeg: false, rating: 4.6, image: 'https://images.unsplash.com/photo-1527477321007-43864782639c?w=400&auto=format&fit=crop&q=80', category: 'Wings' },
+          { id: 'm7-2', name: 'Crispy Falafel Roll', price: 179, desc: 'Herbed chickpea falafel with garlic tahini, pickled veggies in soft tortilla.', isVeg: true, rating: 4.3, image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=400&auto=format&fit=crop&q=80', category: 'Rolls' }
+        ]
+      },
+      {
+        id: 'resto-8',
+        name: 'Udupi Sri Krishna Bhavan',
+        rating: 4.6,
+        ratingCount: '22K+',
+        time: '15-20 mins',
+        deliveryTimeMins: 15,
+        costForTwo: 180,
+        costLabel: '₹180 for two',
+        cuisines: ['South Indian', 'Dosa', 'Idli', 'Filter Coffee'],
+        locality: 'Jayanagar 4th Block',
+        city: 'Bengaluru',
+        image: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=700&auto=format&fit=crop&q=80',
+        offer: '₹50 OFF ABOVE ₹199',
+        isPureVeg: true,
+        isChain: false,
+        menu: [
+          { id: 'm8-1', name: 'Special Ghee Masala Dosa', price: 110, desc: 'Golden crispy dosa roasted with pure desi ghee and spiced potato mash filling.', isVeg: true, rating: 4.9, image: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=400&auto=format&fit=crop&q=80', category: 'Breakfast' },
+          { id: 'm8-2', name: 'Steamed Idli Vada Combo', price: 85, desc: 'Two melt-in-mouth steamed idlis paired with crispy medu vada & coconut chutney.', isVeg: true, rating: 4.8, image: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=400&auto=format&fit=crop&q=80', category: 'Breakfast' },
+          { id: 'm8-3', name: 'Authentic Degree Filter Coffee', price: 45, desc: 'Frothy freshly brewed South Indian chicory-infused filter coffee in brass dabara.', isVeg: true, rating: 4.9, image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=400&auto=format&fit=crop&q=80', category: 'Beverages' }
+        ]
+      }
+    ];
+
+    const INSTAMART_ITEMS = [
+      { id: 'g1', name: 'Amul Taaza Homogenised Toned Milk', weight: '1 Litre', price: 54, origPrice: 56, image: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300&auto=format&fit=crop&q=80', category: 'Dairy & Bread' },
+      { id: 'g2', name: 'Fresh Farm Cavendish Bananas', weight: '500g (4-5 pcs)', price: 38, origPrice: 48, image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=300&auto=format&fit=crop&q=80', category: 'Fruits & Veggies' },
+      { id: 'g3', name: 'Lays Spanish Tomato Tango Chips', weight: '90g', price: 35, origPrice: 40, image: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=300&auto=format&fit=crop&q=80', category: 'Snacks & Munchies' },
+      { id: 'g4', name: 'Coca-Cola Zero Sugar Can', weight: '300 ml', price: 40, origPrice: 40, image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300&auto=format&fit=crop&q=80', category: 'Drinks & Juices' },
+      { id: 'g5', name: 'Maggi 2-Minute Masala Instant Noodles', weight: '280g (Pack of 4)', price: 56, origPrice: 62, image: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=300&auto=format&fit=crop&q=80', category: 'Instant Food' },
+      { id: 'g6', name: 'Cadbury Dairy Milk Silk Chocolate Bar', weight: '150g', price: 165, origPrice: 175, image: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=300&auto=format&fit=crop&q=80', category: 'Chocolates & Sweets' }
+    ];
+
+    const DINEOUT_PLACES = [
+      { id: 'd1', name: 'Toit Brewpub', cuisine: 'Microbrewery, Continental, Pizza', rating: 4.8, discount: '20% OFF BILL', loc: 'Indiranagar 100ft Road', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&auto=format&fit=crop&q=80' },
+      { id: 'd2', name: 'The Fatty Bao - Asian Gastro Bar', cuisine: 'Asian, Dim Sums, Sushi', rating: 4.7, discount: 'FLAT 25% OFF', loc: 'Lavelle Road', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&auto=format&fit=crop&q=80' },
+      { id: 'd3', name: 'Farzi Cafe - Modern Indian', cuisine: 'Modern Indian, Tapas, Cocktails', rating: 4.6, discount: '30% OFF TOTAL', loc: 'UB City, Vittal Mallya Road', image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=600&auto=format&fit=crop&q=80' }
+    ];
+
+    /* --------------------------------------------------------------------------
+       2. APPLICATION STATE
+       -------------------------------------------------------------------------- */
+    let currentTab = 'food';
+    let currentCity = 'Bengaluru';
+    let currentAddress = 'Koramangala, 5th Block, Bengaluru, Karnataka';
+    let activeFilters = {
+      sort: 'relevance',
+      fastDelivery: false,
+      pureVeg: false,
+      rating4: false,
+      offers: false,
+      costLow: false,
+      costMid: false,
+      category: null,
+      offerText: null
+    };
+
+    let cartState = {
+      restaurantId: null,
+      restaurantName: null,
+      items: {}, // key: itemId, value: { item, qty, isGrocery }
+      appliedCoupon: null,
+      discountAmount: 0
+    };
+
+    let activeModalRestaurant = null;
+    let menuVegFilterActive = false;
+    let currentUser = null;
+    let favoritesList = new Set();
+
+    /* --------------------------------------------------------------------------
+       3. INITIALIZATION & RENDERING
+       -------------------------------------------------------------------------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTopChains();
+      renderRestaurantGrid();
+      renderGroceryItems();
+      renderDineoutGrid();
+      updateCartDisplay();
+    });
+
+    function renderTopChains() {
+      const container = document.getElementById('topChainsCarousel');
+      if (!container) return;
+      const chains = RESTAURANTS_DATA.filter(r => r.isChain);
+      container.innerHTML = chains.map(resto => `
+        <div class="top-chain-card-wrap">
+          <div class="restaurant-card" onclick="openRestaurantMenu('${resto.id}')">
+            <div class="card-media-wrapper">
+              <img src="${resto.image}" alt="${resto.name}" loading="lazy">
+              <div class="card-gradient-overlay"></div>
+              <div class="card-offer-tag">${resto.offer}</div>
+              <button class="card-fav-btn ${favoritesList.has(resto.id) ? 'is-fav' : ''}" onclick="toggleFavorite(event, '${resto.id}')">
+                ♥
+              </button>
+            </div>
+            <div class="card-content">
+              <h3 class="card-name">${resto.name}</h3>
+              <div class="card-meta-row">
+                <span class="rating-badge">★ ${resto.rating}</span>
+                <span>•</span>
+                <span>${resto.time}</span>
+              </div>
+              <p class="card-cuisines">${resto.cuisines.join(', ')}</p>
+              <p class="card-locality">${resto.locality}</p>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderRestaurantGrid() {
+      const grid = document.getElementById('mainRestaurantGrid');
+      if (!grid) return;
+
+      let filtered = RESTAURANTS_DATA.filter(r => {
+        if (activeFilters.pureVeg && !r.isPureVeg) return false;
+        if (activeFilters.rating4 && r.rating < 4.0) return false;
+        if (activeFilters.fastDelivery && r.deliveryTimeMins > 25) return false;
+        if (activeFilters.offers && !r.offer) return false;
+        if (activeFilters.costLow && r.costForTwo >= 300) return false;
+        if (activeFilters.costMid && (r.costForTwo < 300 || r.costForTwo > 600)) return false;
+        if (activeFilters.category) {
+          const cat = activeFilters.category.toLowerCase();
+          const matches = r.cuisines.some(c => c.toLowerCase().includes(cat)) ||
+                          r.menu.some(m => m.name.toLowerCase().includes(cat) || m.category.toLowerCase().includes(cat));
+          if (!matches) return false;
+        }
+        return true;
+      });
+
+      // Sort
+      if (activeFilters.sort === 'rating') {
+        filtered.sort((a, b) => b.rating - a.rating);
+      } else if (activeFilters.sort === 'time') {
+        filtered.sort((a, b) => a.deliveryTimeMins - b.deliveryTimeMins);
+      } else if (activeFilters.sort === 'costAsc') {
+        filtered.sort((a, b) => a.costForTwo - b.costForTwo);
+      } else if (activeFilters.sort === 'costDesc') {
+        filtered.sort((a, b) => b.costForTwo - a.costForTwo);
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px;">
+            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">No matching restaurants found</h3>
+            <p style="font-size: 14px; color: var(--swiggy-gray); margin-bottom: 16px;">Try adjusting your filters or search keywords.</p>
+            <button class="service-nav-btn active" style="margin: 0 auto;" onclick="clearAllFilters()">Reset All Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(resto => `
+        <div class="restaurant-card" onclick="openRestaurantMenu('${resto.id}')">
+          <div class="card-media-wrapper">
+            <img src="${resto.image}" alt="${resto.name}" loading="lazy">
+            <div class="card-gradient-overlay"></div>
+            <div class="card-offer-tag">${resto.offer}</div>
+            <button class="card-fav-btn ${favoritesList.has(resto.id) ? 'is-fav' : ''}" onclick="toggleFavorite(event, '${resto.id}')">
+              ♥
+            </button>
+          </div>
+          <div class="card-content">
+            <h3 class="card-name">${resto.name}</h3>
+            <div class="card-meta-row">
+              <span class="rating-badge">★ ${resto.rating}</span>
+              <span>•</span>
+              <span>${resto.time}</span>
+            </div>
+            <p class="card-cuisines">${resto.cuisines.join(', ')}</p>
+            <p class="card-locality">${resto.locality}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderGroceryItems() {
+      const grid = document.getElementById('groceryItemsGrid');
+      if (!grid) return;
+      grid.innerHTML = INSTAMART_ITEMS.map(item => {
+        const inCart = cartState.items[item.id] ? cartState.items[item.id].qty : 0;
+        return `
+          <div class="grocery-item-card">
+            <span class="grocery-time-badge">⚡ 10 MINS</span>
+            <img src="${item.image}" class="grocery-item-img" alt="${item.name}">
+            <span class="grocery-item-weight">${item.weight}</span>
+            <h4 class="grocery-item-title">${item.name}</h4>
+            <div class="grocery-price-row">
+              <div>
+                <span class="grocery-price">₹${item.price}</span>
+                <span class="grocery-original-price">₹${item.origPrice}</span>
+              </div>
+              <div class="add-btn-wrapper" style="position: static; height: 32px; min-width: 76px;">
+                ${inCart === 0 ? `
+                  <button class="add-btn-primary" onclick="addGroceryToCart('${item.id}')">+ ADD</button>
+                ` : `
+                  <div class="qty-counter-control">
+                    <button class="qty-btn" onclick="updateItemQty('${item.id}', -1)">-</button>
+                    <span class="qty-val">${inCart}</span>
+                    <button class="qty-btn" onclick="updateItemQty('${item.id}', 1)">+</button>
+                  </div>
+                `}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderDineoutGrid() {
+      const grid = document.getElementById('dineoutGrid');
+      if (!grid) return;
+      grid.innerHTML = DINEOUT_PLACES.map(d => `
+        <div class="dineout-card" onclick="bookDineoutTable('${d.name}')">
+          <div class="dineout-img-wrap">
+            <img src="${d.image}" alt="${d.name}">
+            <span class="dineout-discount-tag">${d.discount}</span>
+          </div>
+          <div class="dineout-info">
+            <div class="flex justify-between items-center" style="margin-bottom: 4px;">
+              <h4 class="dineout-title">${d.name}</h4>
+              <span class="rating-badge">★ ${d.rating}</span>
+            </div>
+            <p class="dineout-sub">${d.cuisine} • ${d.loc}</p>
+            <button class="dineout-book-btn">Book Table with Offer →</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* --------------------------------------------------------------------------
+       4. SERVICE TAB SWITCHER (Food, Instamart, Dineout, Genie)
+       -------------------------------------------------------------------------- */
+    function switchServiceTab(tabName) {
+      currentTab = tabName;
+      ['Food', 'Instamart', 'Dineout', 'Genie'].forEach(tab => {
+        const btn = document.getElementById(`tabBtn${tab}`);
+        if (btn) btn.classList.remove('active');
+      });
+
+      const activeBtn = document.getElementById(`tabBtn${capitalize(tabName)}`);
+      if (activeBtn) activeBtn.classList.add('active');
+
+      document.getElementById('foodView').style.display = tabName === 'food' ? 'block' : 'none';
+      document.getElementById('instamartView').classList.toggle('active', tabName === 'instamart');
+      document.getElementById('dineoutView').classList.toggle('active', tabName === 'dineout');
+      document.getElementById('genieView').classList.toggle('active', tabName === 'genie');
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    /* --------------------------------------------------------------------------
+       5. FILTER & SORT CONTROLS
+       -------------------------------------------------------------------------- */
+    function toggleFilter(filterKey) {
+      activeFilters[filterKey] = !activeFilters[filterKey];
+      const el = document.getElementById(`filter${capitalize(filterKey)}`);
+      if (el) el.classList.toggle('active', activeFilters[filterKey]);
+      checkActiveFiltersState();
+      renderRestaurantGrid();
+    }
+
+    function toggleSortDropdown() {
+      const sorts = ['relevance', 'rating', 'time', 'costAsc', 'costDesc'];
+      const labels = {
+        relevance: 'Relevance',
+        rating: 'Rating ★',
+        time: 'Fast Delivery',
+        costAsc: 'Cost: Low to High',
+        costDesc: 'Cost: High to Low'
+      };
+      const nextIdx = (sorts.indexOf(activeFilters.sort) + 1) % sorts.length;
+      activeFilters.sort = sorts[nextIdx];
+      document.getElementById('currentSortLabel').innerText = labels[activeFilters.sort];
+      document.getElementById('filterSortBtn').classList.toggle('active', activeFilters.sort !== 'relevance');
+      checkActiveFiltersState();
+      renderRestaurantGrid();
+      showToast(`Sorted by: ${labels[activeFilters.sort]}`);
+    }
+
+    function filterByCategory(categoryName) {
+      activeFilters.category = categoryName;
+      checkActiveFiltersState();
+      renderRestaurantGrid();
+      const el = document.getElementById('restaurantsSection');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      showToast(`Filtered by dish: ${categoryName}`);
+    }
+
+    function filterByOffer(offerText) {
+      activeFilters.offers = true;
+      document.getElementById('filterOffers').classList.add('active');
+      checkActiveFiltersState();
+      renderRestaurantGrid();
+      const el = document.getElementById('restaurantsSection');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      showToast(`Applied Offer Filter: ${offerText}`);
+    }
+
+    function clearAllFilters() {
+      activeFilters = {
+        sort: 'relevance',
+        fastDelivery: false,
+        pureVeg: false,
+        rating4: false,
+        offers: false,
+        costLow: false,
+        costMid: false,
+        category: null,
+        offerText: null
+      };
+      document.querySelectorAll('.filter-pill, .pure-veg-switch').forEach(el => el.classList.remove('active'));
+      document.getElementById('currentSortLabel').innerText = 'Relevance';
+      checkActiveFiltersState();
+      renderRestaurantGrid();
+      showToast('All filters cleared');
+    }
+
+    function checkActiveFiltersState() {
+      const hasActive = Object.values(activeFilters).some(v => v === true || (typeof v === 'string' && v !== 'relevance'));
+      const clearBtn = document.getElementById('clearAllFiltersBtn');
+      if (clearBtn) clearBtn.style.display = hasActive ? 'flex' : 'none';
+    }
+
+    function scrollCarousel(id, offset) {
+      const container = document.getElementById(id);
+      if (container) container.scrollBy({ left: offset, behavior: 'smooth' });
+    }
+
+    function toggleFavorite(e, restoId) {
+      e.stopPropagation();
+      if (favoritesList.has(restoId)) {
+        favoritesList.delete(restoId);
+        showToast('Removed from Favorites');
+      } else {
+        favoritesList.add(restoId);
+        showToast('Added to Favorites ❤️');
+      }
+      renderTopChains();
+      renderRestaurantGrid();
+    }
+
+    /* --------------------------------------------------------------------------
+       6. RESTAURANT MENU MODAL & CART INTERACTIONS
+       -------------------------------------------------------------------------- */
+    function openRestaurantMenu(restoId) {
+      const resto = RESTAURANTS_DATA.find(r => r.id === restoId);
+      if (!resto) return;
+      activeModalRestaurant = resto;
+      menuVegFilterActive = false;
+
+      document.getElementById('modalRestoName').innerText = resto.name;
+      document.getElementById('modalRestoCuisines').innerText = `${resto.cuisines.join(', ')} • ${resto.locality}`;
+      document.getElementById('modalRestoRating').innerText = `★ ${resto.rating}`;
+      document.getElementById('modalRestoCost').innerText = resto.costLabel;
+
+      const offersContainer = document.getElementById('modalRestoOffers');
+      offersContainer.innerHTML = `
+        <div class="resto-offer-box">
+          <div class="resto-offer-icon">%</div>
+          <div>
+            <div class="resto-offer-text">${resto.offer}</div>
+            <div class="resto-offer-sub">USE CODE SWIGGY50</div>
+          </div>
+        </div>
+        <div class="resto-offer-box">
+          <div class="resto-offer-icon">🏷</div>
+          <div>
+            <div class="resto-offer-text">FLAT ₹100 CASHBACK</div>
+            <div class="resto-offer-sub">ON ORDERS VIA UPI</div>
+          </div>
+        </div>
+      `;
+
+      renderRestoMenuItems(resto.menu);
+      openModal('restaurantMenuModal');
+    }
+
+    function renderRestoMenuItems(menuItems) {
+      const container = document.getElementById('menuItemsContainer');
+      let filtered = menuItems;
+      if (menuVegFilterActive) {
+        filtered = filtered.filter(item => item.isVeg);
+      }
+
+      document.getElementById('menuItemCountDisplay').innerText = `${filtered.length} Items`;
+
+      // Group by category
+      const categories = {};
+      filtered.forEach(item => {
+        if (!categories[item.category]) categories[item.category] = [];
+        categories[item.category].push(item);
+      });
+
+      container.innerHTML = Object.keys(categories).map(catName => `
+        <div>
+          <h3 class="menu-category-title">
+            <span>${catName} (${categories[catName].length})</span>
+          </h3>
+          <div>
+            ${categories[catName].map(item => {
+              const inCart = cartState.items[item.id] ? cartState.items[item.id].qty : 0;
+              return `
+                <div class="menu-item-row">
+                  <div class="menu-item-info">
+                    <div class="${item.isVeg ? 'veg-icon-dot' : 'non-veg-icon-dot'}"></div>
+                    <h4 class="menu-item-name">${item.name}</h4>
+                    <div class="menu-item-price">₹${item.price}</div>
+                    <p class="menu-item-desc">${item.desc}</p>
+                  </div>
+                  <div class="menu-item-media">
+                    <img src="${item.image}" class="menu-item-img" alt="${item.name}">
+                    <div class="add-btn-wrapper">
+                      ${inCart === 0 ? `
+                        <button class="add-btn-primary" onclick="addItemToCart('${activeModalRestaurant.id}', '${item.id}')">+ ADD</button>
+                      ` : `
+                        <div class="qty-counter-control">
+                          <button class="qty-btn" onclick="updateItemQty('${item.id}', -1)">-</button>
+                          <span class="qty-val">${inCart}</span>
+                          <button class="qty-btn" onclick="updateItemQty('${item.id}', 1)">+</button>
+                        </div>
+                      `}
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleMenuVegFilter() {
+      menuVegFilterActive = !menuVegFilterActive;
+      document.getElementById('modalVegFilterBtn').classList.toggle('active', menuVegFilterActive);
+      if (activeModalRestaurant) {
+        renderRestoMenuItems(activeModalRestaurant.menu);
+      }
+    }
+
+    function filterMenuSearch(query) {
+      if (!activeModalRestaurant) return;
+      const q = query.toLowerCase().trim();
+      const filtered = activeModalRestaurant.menu.filter(item => 
+        item.name.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q)
+      );
+      renderRestoMenuItems(filtered);
+    }
+
+    /* --------------------------------------------------------------------------
+       7. CART LOGIC & CHECKOUT
+       -------------------------------------------------------------------------- */
+    function addItemToCart(restoId, itemId) {
+      const resto = RESTAURANTS_DATA.find(r => r.id === restoId);
+      const item = resto.menu.find(m => m.id === itemId);
+      if (!item) return;
+
+      // Handle multi-restaurant conflict
+      if (cartState.restaurantId && cartState.restaurantId !== restoId && Object.keys(cartState.items).length > 0) {
+        if (confirm(`Your cart contains items from ${cartState.restaurantName}. Would you like to reset your cart to add items from ${resto.name}?`)) {
+          cartState.items = {};
+          cartState.appliedCoupon = null;
+        } else {
+          return;
+        }
+      }
+
+      cartState.restaurantId = restoId;
+      cartState.restaurantName = resto.name;
+
+      if (!cartState.items[itemId]) {
+        cartState.items[itemId] = { item, qty: 1, isGrocery: false };
+      } else {
+        cartState.items[itemId].qty += 1;
+      }
+
+      showToast(`Added "${item.name}" to cart!`);
+      updateCartDisplay();
+      if (activeModalRestaurant && activeModalRestaurant.id === restoId) {
+        renderRestoMenuItems(activeModalRestaurant.menu);
+      }
+    }
+
+    function addGroceryToCart(groceryId) {
+      const item = INSTAMART_ITEMS.find(g => g.id === groceryId);
+      if (!item) return;
+
+      cartState.restaurantName = 'Swiggy Instamart (10 Mins Delivery)';
+
+      if (!cartState.items[groceryId]) {
+        cartState.items[groceryId] = { item, qty: 1, isGrocery: true };
+      } else {
+        cartState.items[groceryId].qty += 1;
+      }
+
+      showToast(`Added "${item.name}" to Instamart cart!`);
+      updateCartDisplay();
+      renderGroceryItems();
+    }
+
+    function updateItemQty(itemId, delta) {
+      if (!cartState.items[itemId]) return;
+      cartState.items[itemId].qty += delta;
+
+      if (cartState.items[itemId].qty <= 0) {
+        delete cartState.items[itemId];
+      }
+
+      updateCartDisplay();
+      if (activeModalRestaurant) {
+        renderRestoMenuItems(activeModalRestaurant.menu);
+      }
+      renderGroceryItems();
+    }
+
+    function updateCartDisplay() {
+      const totalItemsCount = Object.values(cartState.items).reduce((acc, curr) => acc + curr.qty, 0);
+      const subtotal = Object.values(cartState.items).reduce((acc, curr) => acc + (curr.item.price * curr.qty), 0);
+
+      // Recalculate discount
+      let discount = 0;
+      if (cartState.appliedCoupon) {
+        if (cartState.appliedCoupon.pct > 0) {
+          discount = Math.min((subtotal * cartState.appliedCoupon.pct) / 100, cartState.appliedCoupon.maxCap);
+        } else {
+          discount = Math.min(cartState.appliedCoupon.maxCap, subtotal);
+        }
+      }
+      cartState.discountAmount = discount;
+
+      const deliveryFee = subtotal > 199 ? 0 : 29;
+      const platformFee = subtotal > 0 ? 6 : 0;
+      const gst = subtotal > 0 ? Math.round(subtotal * 0.05) : 0;
+      const grandTotal = Math.max(0, subtotal - discount + deliveryFee + platformFee + gst);
+
+      // Update Header Badges
+      const badge = document.getElementById('cartCountBadge');
+      if (badge) badge.innerText = totalItemsCount;
+
+      // Update Floating Bar
+      const floatingBar = document.getElementById('floatingCartBar');
+      if (floatingBar) {
+        if (totalItemsCount > 0) {
+          floatingBar.classList.add('visible');
+          document.getElementById('floatingItemCount').innerText = `${totalItemsCount} ITEM${totalItemsCount > 1 ? 'S' : ''}`;
+          document.getElementById('floatingTotal').innerText = `₹${grandTotal}`;
+        } else {
+          floatingBar.classList.remove('visible');
+        }
+      }
+
+      // Render Drawer Body
+      renderCartDrawerContent(totalItemsCount, subtotal, discount, deliveryFee, platformFee, gst, grandTotal);
+    }
+
+    function renderCartDrawerContent(totalCount, subtotal, discount, deliveryFee, platformFee, gst, grandTotal) {
+      const body = document.getElementById('cartDrawerBody');
+      const footer = document.getElementById('cartDrawerFooter');
+      if (!body) return;
+
+      if (totalCount === 0) {
+        footer.style.display = 'none';
+        body.innerHTML = `
+          <div class="cart-empty-state">
+            <img src="https://images.unsplash.com/photo-1586769852044-692d6e3703f0?w=400&auto=format&fit=crop&q=80" class="cart-empty-img" alt="Empty Cart">
+            <h3 class="cart-empty-title">Your cart is empty</h3>
+            <p class="cart-empty-sub">You can go to home page to view more restaurants and grocery stores.</p>
+            <button class="cart-see-resto-btn" onclick="closeDrawer('cartDrawer')">SEE RESTAURANTS NEAR YOU</button>
+          </div>
+        `;
+        return;
+      }
+
+      footer.style.display = 'block';
+      document.getElementById('cartCheckoutTotal').innerText = `₹${grandTotal}`;
+
+      body.innerHTML = `
+        <div class="cart-resto-summary">
+          <div style="background: var(--swiggy-orange-light); color: var(--swiggy-orange); width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+            🏬
+          </div>
+          <div>
+            <h4 class="cart-resto-name">${cartState.restaurantName || 'Selected Outlet'}</h4>
+            <p class="cart-resto-loc">Delivering to: ${currentAddress}</p>
+          </div>
+        </div>
+
+        <div class="cart-items-list">
+          ${Object.values(cartState.items).map(({ item, qty }) => `
+            <div class="cart-item-row">
+              <div class="cart-item-left">
+                <div class="${item.isVeg ? 'veg-icon-dot' : (item.isVeg === false ? 'non-veg-icon-dot' : '')}"></div>
+                <span class="cart-item-title">${item.name}</span>
+              </div>
+              <div class="add-btn-wrapper" style="position: static; height: 28px; min-width: 72px;">
+                <div class="qty-counter-control">
+                  <button class="qty-btn" onclick="updateItemQty('${item.id}', -1)">-</button>
+                  <span class="qty-val">${qty}</span>
+                  <button class="qty-btn" onclick="updateItemQty('${item.id}', 1)">+</button>
+                </div>
+              </div>
+              <span class="cart-item-price">₹${item.price * qty}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Coupon Card -->
+        <div class="cart-coupon-box" onclick="openOffersModal()">
+          <div class="flex items-center gap-2">
+            <span>🎟</span>
+            <div>
+              <div style="font-size: 13px; font-weight: 700;">
+                ${cartState.appliedCoupon ? `Code: ${cartState.appliedCoupon.code}` : 'Apply Coupon'}
+              </div>
+              <div style="font-size: 11px; color: var(--swiggy-gray);">
+                ${cartState.appliedCoupon ? `You saved ₹${discount}!` : 'Unlock discounts & free delivery'}
+              </div>
+            </div>
+          </div>
+          ${cartState.appliedCoupon ? `
+            <span class="coupon-applied-tag">APPLIED ✓</span>
+          ` : `
+            <span style="font-size: 12px; font-weight: 700; color: var(--swiggy-orange);">VIEW OFFERS</span>
+          `}
+        </div>
+
+        <!-- Bill Details -->
+        <div class="bill-details-card">
+          <h4 style="font-size: 14px; font-weight: 800; margin-bottom: 12px;">Bill Details</h4>
+          <div class="bill-row">
+            <span>Item Total</span>
+            <span>₹${subtotal}</span>
+          </div>
+          ${discount > 0 ? `
+            <div class="bill-row" style="color: var(--swiggy-green); font-weight: 700;">
+              <span>Coupon Savings</span>
+              <span>- ₹${discount}</span>
+            </div>
+          ` : ''}
+          <div class="bill-row">
+            <span>Delivery Fee | 2.4 kms</span>
+            <span>${deliveryFee === 0 ? '<span style="color: var(--swiggy-green); font-weight: 700;">FREE</span>' : `₹${deliveryFee}`}</span>
+          </div>
+          <div class="bill-row">
+            <span>Platform Fee</span>
+            <span>₹${platformFee}</span>
+          </div>
+          <div class="bill-row">
+            <span>GST and Restaurant Charges</span>
+            <span>₹${gst}</span>
+          </div>
+          <div class="bill-row total">
+            <span>TO PAY</span>
+            <span>₹${grandTotal}</span>
+          </div>
+
+          ${discount > 0 || deliveryFee === 0 ? `
+            <div class="savings-badge">
+              🎉 Almost there! You are saving ₹${discount + (deliveryFee === 0 ? 29 : 0)} on this order.
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    function applySpecificCoupon(code, pct, maxCap) {
+      cartState.appliedCoupon = { code, pct, maxCap };
+      updateCartDisplay();
+      closeModal('offersModal');
+      showToast(`Coupon "${code}" applied successfully! 🎊`);
+
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.6 } });
+      }
+    }
+
+    function proceedToCheckout() {
+      if (!currentUser) {
+        showToast('Please sign in with your phone number to complete order');
+        closeDrawer('cartDrawer');
+        openAuthDrawer();
+        return;
+      }
+
+      closeDrawer('cartDrawer');
+      // Reset cart and open live order tracking
+      cartState.items = {};
+      cartState.appliedCoupon = null;
+      updateCartDisplay();
+
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 120, spread: 70, origin: { y: 0.5 } });
+      }
+
+      setTimeout(() => {
+        openOrderTrackingModal();
+        showToast('Order Placed Successfully! 🚴');
+      }, 400);
+    }
+
+    /* --------------------------------------------------------------------------
+       8. GLOBAL SEARCH & FILTERING
+       -------------------------------------------------------------------------- */
+    function openSearchModal() {
+      openModal('searchModal');
+      setTimeout(() => {
+        document.getElementById('mainSearchInput')?.focus();
+      }, 100);
+    }
+
+    function quickSearch(keyword) {
+      document.getElementById('mainSearchInput').value = keyword;
+      handleGlobalSearch(keyword);
+    }
+
+    function handleGlobalSearch(query) {
+      const q = query.toLowerCase().trim();
+      const resultsContainer = document.getElementById('searchResultsList');
+      if (!q) {
+        resultsContainer.innerHTML = '';
+        return;
+      }
+
+      const matchedRestos = RESTAURANTS_DATA.filter(r => 
+        r.name.toLowerCase().includes(q) || r.cuisines.some(c => c.toLowerCase().includes(q))
+      );
+
+      const matchedDishes = [];
+      RESTAURANTS_DATA.forEach(r => {
+        r.menu.forEach(item => {
+          if (item.name.toLowerCase().includes(q) || item.desc.toLowerCase().includes(q)) {
+            matchedDishes.push({ resto: r, item });
+          }
+        });
+      });
+
+      if (matchedRestos.length === 0 && matchedDishes.length === 0) {
+        resultsContainer.innerHTML = `
+          <div style="text-align: center; padding: 30px 10px; color: var(--swiggy-gray);">
+            No results found for "${query}"
+          </div>
+        `;
+        return;
+      }
+
+      resultsContainer.innerHTML = `
+        ${matchedRestos.length > 0 ? `
+          <h4 style="font-size: 13px; font-weight: 700; color: var(--swiggy-gray); text-transform: uppercase; margin: 16px 0 10px;">Restaurants</h4>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+            ${matchedRestos.map(r => `
+              <div style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 8px; cursor: pointer; border: 1px solid var(--swiggy-border);" onclick="selectSearchResultResto('${r.id}')">
+                <img src="${r.image}" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
+                <div>
+                  <h5 style="font-size: 15px; font-weight: 700;">${r.name}</h5>
+                  <span style="font-size: 12px; color: var(--swiggy-gray);">${r.cuisines.join(', ')} • ★ ${r.rating}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${matchedDishes.length > 0 ? `
+          <h4 style="font-size: 13px; font-weight: 700; color: var(--swiggy-gray); text-transform: uppercase; margin: 16px 0 10px;">Dishes</h4>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            ${matchedDishes.slice(0, 6).map(({ resto, item }) => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-radius: 8px; border: 1px solid var(--swiggy-border);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <img src="${item.image}" style="width: 48px; height: 48px; border-radius: 8px; object-fit: cover;">
+                  <div>
+                    <h5 style="font-size: 14px; font-weight: 700;">${item.name}</h5>
+                    <span style="font-size: 12px; color: var(--swiggy-gray);">By ${resto.name} • ₹${item.price}</span>
+                  </div>
+                </div>
+                <button style="background: var(--swiggy-green); color: white; padding: 6px 14px; border-radius: 6px; font-weight: 700; font-size: 12px;" onclick="addItemToCart('${resto.id}', '${item.id}'); closeModal('searchModal');">
+                  + ADD
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+    }
+
+    function selectSearchResultResto(restoId) {
+      closeModal('searchModal');
+      openRestaurantMenu(restoId);
+    }
+
+    /* --------------------------------------------------------------------------
+       9. LOCATION SELECTION
+       -------------------------------------------------------------------------- */
+    function selectCity(cityName, addressText) {
+      currentCity = cityName;
+      currentAddress = addressText;
+
+      document.getElementById('currentCityDisplay').innerText = cityName;
+      document.getElementById('currentAddressDisplay').innerText = addressText;
+      document.getElementById('topChainCityTitle').innerText = cityName;
+      document.getElementById('restaurantListCityTitle').innerText = cityName;
+
+      closeDrawer('locationDrawer');
+      showToast(`Location set to: ${cityName}`);
+    }
+
+    function useCurrentLocation() {
+      selectCity('Bengaluru', '5th Block Koramangala, Bengaluru (GPS Pinpoint)');
+      showToast('GPS Location updated!');
+    }
+
+    function handleLocationSearch(query) {
+      const q = query.toLowerCase();
+      const list = document.getElementById('popularCitiesList');
+      if (!list) return;
+      Array.from(list.children).forEach(child => {
+        const text = child.innerText.toLowerCase();
+        child.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    }
+
+    /* --------------------------------------------------------------------------
+       10. AUTH & PROFILE
+       -------------------------------------------------------------------------- */
+    function openAuthDrawer() {
+      openDrawer('authDrawer');
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const phone = document.getElementById('userPhoneInput').value;
+      const name = document.getElementById('userNameInput').value;
+
+      currentUser = { name, phone };
+      document.getElementById('userNameNav').innerText = name.split(' ')[0];
+      document.getElementById('userProfileName').innerText = name;
+      document.getElementById('userProfilePhone').innerText = `+91 ${phone}`;
+      document.getElementById('userAvatar').innerText = name.charAt(0).toUpperCase();
+
+      document.getElementById('loggedOutState').style.display = 'none';
+      document.getElementById('loggedInState').style.display = 'block';
+
+      showToast(`Welcome back, ${name}! 🎉`);
+      setTimeout(() => {
+        closeDrawer('authDrawer');
+      }, 600);
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      document.getElementById('userNameNav').innerText = 'Sign In';
+      document.getElementById('loggedOutState').style.display = 'block';
+      document.getElementById('loggedInState').style.display = 'none';
+      showToast('Logged out successfully');
+      closeDrawer('authDrawer');
+    }
+
+    /* --------------------------------------------------------------------------
+       11. GENIE & DINEOUT ACTIONS
+       -------------------------------------------------------------------------- */
+    function triggerGenieOrder() {
+      const pickup = document.getElementById('geniePickupInput').value;
+      const drop = document.getElementById('genieDropInput').value;
+      const pkg = document.getElementById('geniePackageInput').value;
+
+      if (!pkg.trim()) {
+        showToast('Please specify what item you want to deliver');
+        return;
+      }
+
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 80, spread: 60 });
+      }
+
+      showToast(`Genie Delivery Partner Dispatched for "${pkg}"! 🛵`);
+      setTimeout(() => {
+        openOrderTrackingModal();
+      }, 500);
+    }
+
+    function bookDineoutTable(restaurantName) {
+      showToast(`Table reserved at ${restaurantName} with 20% OFF! 🎉`);
+    }
+
+    /* --------------------------------------------------------------------------
+       12. MODAL & DRAWER HELPERS
+       -------------------------------------------------------------------------- */
+    function openModal(modalId) {
+      document.getElementById('modalBackdrop').classList.add('open');
+      const el = document.getElementById(modalId);
+      if (el) el.classList.add('open');
+    }
+
+    function closeModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.remove('open');
+      checkBackdropState();
+    }
+
+    function openDrawer(drawerId) {
+      document.getElementById('modalBackdrop').classList.add('open');
+      const el = document.getElementById(drawerId);
+      if (el) el.classList.add('open');
+    }
+
+    function closeDrawer(drawerId) {
+      const el = document.getElementById(drawerId);
+      if (el) el.classList.remove('open');
+      checkBackdropState();
+    }
+
+    function closeAllModals() {
+      document.querySelectorAll('.modal-center, .drawer-right, .drawer-left').forEach(el => el.classList.remove('open'));
+      document.getElementById('modalBackdrop').classList.remove('open');
+    }
+
+    function checkBackdropState() {
+      const anyOpen = document.querySelectorAll('.modal-center.open, .drawer-right.open, .drawer-left.open').length > 0;
+      if (!anyOpen) {
+        document.getElementById('modalBackdrop').classList.remove('open');
+      }
+    }
+
+    function openCartDrawer() { openDrawer('cartDrawer'); }
+    function openOffersModal() { openModal('offersModal'); }
+    function openHelpDrawer() { openDrawer('helpDrawer'); }
+    function openOrderTrackingModal() { openModal('orderTrackingModal'); }
+
+    /* --------------------------------------------------------------------------
+       13. TOAST NOTIFICATIONS
+       -------------------------------------------------------------------------- */
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = 'toast-msg';
+      toast.innerHTML = `
+        <span>🍔</span>
+        <span>${message}</span>
+      `;
+
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.add('show');
+      });
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+  </script>
+</body>
+</html>
